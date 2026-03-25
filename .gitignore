@@ -1,0 +1,11 @@
+.DS_Store
+DerivedData/
+.build/
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+Package.resolved
+PastPaperTracker.xcodeproj/project.xcworkspace/xcuserdata/
+PastPaperTracker.xcodeproj/xcuserdata/
+PastPaperTracker/Resources/SupabaseConfig.plist

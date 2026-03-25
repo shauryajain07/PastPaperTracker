@@ -66,7 +66,7 @@ struct MistakeDetailView: View {
                 )
                 StudyStatChip(
                     title: "Marks Lost",
-                    value: mistake.marksLost.map { "\($0, specifier: "%.1f")" } ?? "--",
+                    value: mistake.marksLost.map { $0.formatted(.number.precision(.fractionLength(1))) } ?? "--",
                     systemImage: "arrow.down.circle"
                 )
             }

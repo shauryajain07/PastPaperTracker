@@ -128,12 +128,12 @@ struct TestsListView: View {
                 )
                 StudyStatChip(
                     title: "Average",
-                    value: filteredEntries.isEmpty ? "--" : "\(filteredAverage, specifier: "%.0f")%",
+                    value: filteredEntries.isEmpty ? "--" : "\(filteredAverage.formatted(.number.precision(.fractionLength(0))))%",
                     systemImage: "chart.bar.xaxis"
                 )
                 StudyStatChip(
                     title: "Best Result",
-                    value: filteredEntries.isEmpty ? "--" : "\(bestResult, specifier: "%.0f")%",
+                    value: filteredEntries.isEmpty ? "--" : "\(bestResult.formatted(.number.precision(.fractionLength(0))))%",
                     systemImage: "rosette"
                 )
                 StudyStatChip(

@@ -116,7 +116,7 @@ struct MistakesListView: View {
                 )
                 StudyStatChip(
                     title: "Marks Lost",
-                    value: totalMarksLost > 0 ? "\(totalMarksLost, specifier: "%.0f")" : "--",
+                    value: totalMarksLost > 0 ? totalMarksLost.formatted(.number.precision(.fractionLength(0))) : "--",
                     systemImage: "arrow.down.circle"
                 )
             }

@@ -25,11 +25,13 @@
 		54DA9B3785C1896A820000E3 /* TestDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEF522EC1B100ED62759E70 /* TestDetailView.swift */; };
 		55AFB7787F3C3EE536E48C61 /* RepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D684B9DFDF2C6620337AEDB /* RepositoryTests.swift */; };
 		68BD75E80DDBB0832D357936 /* PhotoStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61981083E1D28B67599ED18 /* PhotoStoreTests.swift */; };
+		6A6645E1F64CAB2112DEBD9B /* StudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D7B34D48BFAF13C1BA5927 /* StudyTheme.swift */; };
 		6BD2DE774A3BE6D4B90C342B /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B0DA375359CD45DA875F12 /* Formatters.swift */; };
 		6C0ECD716A7FD90C6E1405AA /* AttachmentThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E6ECBF0BD3682CEA83537AC /* AttachmentThumbnailView.swift */; };
 		6FAC62EDA1CB30234256EAC8 /* PastPaperTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E64929511EED0E7874F1386 /* PastPaperTrackerApp.swift */; };
 		7911C00E4D31A85955ACC4A0 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2127F017F29C9066AAEB5333 /* SessionStore.swift */; };
 		79E02E24E7E4CCE102B1B954 /* ISO8601.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3487BCBB148162CF2918B71 /* ISO8601.swift */; };
+		7D46105367326FF0C101011D /* SupabaseConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 579815657DD54F8B4D283CC9 /* SupabaseConfig.plist */; };
 		838F92DE4195E39E08891B56 /* SyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EB5EC35C786BC8D7741C9B /* SyncState.swift */; };
 		8B9F2456F3E4886418F37E84 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BC25AFD8C1669E82713F98 /* DashboardView.swift */; };
 		8D632908DBEEDA091A48E14C /* AppUserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC796C75EEAC80D5441324A /* AppUserSession.swift */; };
@@ -69,6 +71,7 @@
 
 /* Begin PBXFileReference section */
 		05BC25AFD8C1669E82713F98 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		07D7B34D48BFAF13C1BA5927 /* StudyTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyTheme.swift; sourceTree = "<group>"; };
 		0828B6543706502413D9A51C /* PhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStore.swift; sourceTree = "<group>"; };
 		0DEF522EC1B100ED62759E70 /* TestDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDetailView.swift; sourceTree = "<group>"; };
 		14EB5EC35C786BC8D7741C9B /* SyncState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncState.swift; sourceTree = "<group>"; };
@@ -83,6 +86,7 @@
 		4E13CEB6B0B9619C88FE38F0 /* Subject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subject.swift; sourceTree = "<group>"; };
 		52D2E189AAF1520803269A6E /* SettingsToolbarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsToolbarButton.swift; sourceTree = "<group>"; };
 		54A42290B6D783947F8A1F30 /* TestEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEditorView.swift; sourceTree = "<group>"; };
+		579815657DD54F8B4D283CC9 /* SupabaseConfig.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = SupabaseConfig.plist; sourceTree = "<group>"; };
 		5EF70F9DB2B9FA41A9888411 /* AnalyticsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsCalculatorTests.swift; sourceTree = "<group>"; };
 		60CE5DD3121294DC7595FF50 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		67B1BAA569224536DA850B88 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -125,6 +129,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		06B463F639AA1785ABBAE800 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				07D7B34D48BFAF13C1BA5927 /* StudyTheme.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
 		0E1D3A491609093617022507 /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -220,6 +232,14 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
+		8EBCF413645A988C334AD6DC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				579815657DD54F8B4D283CC9 /* SupabaseConfig.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		B0622C6DB51D27426005AD68 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -286,7 +306,9 @@
 				53E80B57AC847BA14A651B0F /* Models */,
 				B625F0E350BE53D7C6B1FC1B /* Persistence */,
 				6280FB75D31F6F8517C29937 /* Repositories */,
+				8EBCF413645A988C334AD6DC /* Resources */,
 				0E1D3A491609093617022507 /* Services */,
+				06B463F639AA1785ABBAE800 /* UI */,
 				2026BF125389EACCBE2DE173 /* Utilities */,
 			);
 			path = PastPaperTracker;
@@ -328,6 +350,7 @@
 			buildConfigurationList = E50364C4DD512BFCDC6BE77C /* Build configuration list for PBXNativeTarget "PastPaperTracker" */;
 			buildPhases = (
 				2F838055D0D21F489BCAC301 /* Sources */,
+				EDAB66485B1B1AAAE766EABF /* Resources */,
 				BC11A29CB695883202716CD5 /* Frameworks */,
 			);
 			buildRules = (
@@ -405,6 +428,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		EDAB66485B1B1AAAE766EABF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7D46105367326FF0C101011D /* SupabaseConfig.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		2F838055D0D21F489BCAC301 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -436,6 +470,7 @@
 				7911C00E4D31A85955ACC4A0 /* SessionStore.swift in Sources */,
 				8ED35582C6566FE96586556A /* SettingsToolbarButton.swift in Sources */,
 				1792B4BF4EB3747D0D1E296F /* SettingsView.swift in Sources */,
+				6A6645E1F64CAB2112DEBD9B /* StudyTheme.swift in Sources */,
 				92751441BD7FF019B42AE87B /* Subject.swift in Sources */,
 				25C4103212B1A89051A4A8A0 /* SubjectEditorView.swift in Sources */,
 				E401CCE7CBA17E71C1F2E39E /* SubjectRepository.swift in Sources */,
@@ -598,7 +633,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\", \"CFBundleURLSchemes\": [\"pastpapertracker\"]]]";
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"pastpapertracker\"], \"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\"]]";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -681,7 +716,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\", \"CFBundleURLSchemes\": [\"pastpapertracker\"]]]";
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"pastpapertracker\"], \"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\"]]";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

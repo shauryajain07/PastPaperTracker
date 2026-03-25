@@ -36,7 +36,7 @@ struct DashboardView: View {
 
     private var bestSubjectSummary: String {
         guard let bestSubject = subjectAverages.first else { return "Add results" }
-        return "\(bestSubject.subjectName) \(bestSubject.averagePercentage, specifier: "%.0f")%"
+        return "\(bestSubject.subjectName) \(bestSubject.averagePercentage.formatted(.number.precision(.fractionLength(0))))%"
     }
 
     private var totalMarksLost: Double {
@@ -59,7 +59,7 @@ struct DashboardView: View {
 
         if let improvementFromPrevious {
             let direction = improvementFromPrevious >= 0 ? "up" : "down"
-            return "Average performance is \(overallAverage, specifier: "%.0f")%, and your latest paper is \(direction) \(abs(improvementFromPrevious), specifier: "%.0f") points from the previous one."
+            return "Average performance is \(overallAverage.formatted(.number.precision(.fractionLength(0))))%, and your latest paper is \(direction) \(abs(improvementFromPrevious).formatted(.number.precision(.fractionLength(0)))) points from the previous one."
         }
 
         return "You have your first paper in place. Keep logging results to turn this into a usable trend."
@@ -127,7 +127,7 @@ struct DashboardView: View {
             ) {
                 StudyStatChip(
                     title: "Average",
-                    value: markEntries.isEmpty ? "--" : "\(overallAverage, specifier: "%.0f")%",
+                    value: markEntries.isEmpty ? "--" : "\(overallAverage.formatted(.number.precision(.fractionLength(0))))%",
                     systemImage: "gauge.with.dots.needle.50percent"
                 )
                 StudyStatChip(
@@ -142,7 +142,7 @@ struct DashboardView: View {
                 )
                 StudyStatChip(
                     title: "Mistake Load",
-                    value: totalMarksLost > 0 ? "\(totalMarksLost, specifier: "%.0f") marks" : "\(mistakes.count) items",
+                    value: totalMarksLost > 0 ? "\(totalMarksLost.formatted(.number.precision(.fractionLength(0)))) marks" : "\(mistakes.count) items",
                     systemImage: "exclamationmark.bubble"
                 )
             }
@@ -227,8 +227,8 @@ struct DashboardView: View {
                     if let improvementFromPrevious {
                         Text(
                             improvementFromPrevious >= 0
-                                ? "Up \(abs(improvementFromPrevious), specifier: "%.0f") pts"
-                                : "Down \(abs(improvementFromPrevious), specifier: "%.0f") pts"
+                                ? "Up \(abs(improvementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
+                                : "Down \(abs(improvementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
                         )
                     } else {
                         Text("Waiting for more data")
@@ -244,7 +244,7 @@ struct DashboardView: View {
     private var averagesSection: some View {
         let averages = subjectAverages
 
-        VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
                 title: "Subject Averages",
                 detail: "Use this to see where your baseline is already strong."
@@ -278,7 +278,7 @@ struct DashboardView: View {
     private var recentTestsSection: some View {
         let recentEntries = Array(markEntries.prefix(3))
 
-        VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
                 title: "Recent Tests",
                 detail: "Jump back into your latest papers without digging."
@@ -317,7 +317,7 @@ struct DashboardView: View {
     private var recentMistakesSection: some View {
         let recentMistakes = Array(mistakes.prefix(3))
 
-        VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
                 title: "Recent Mistakes",
                 detail: "Keep the errors that still cost marks within easy reach."

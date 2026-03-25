@@ -87,7 +87,7 @@ struct TestDetailView: View {
             ) {
                 StudyStatChip(
                     title: "Score",
-                    value: "\(entry.scoredMarks, specifier: "%.1f") / \(entry.totalMarks, specifier: "%.1f")",
+                    value: "\(entry.scoredMarks.formatted(.number.precision(.fractionLength(1)))) / \(entry.totalMarks.formatted(.number.precision(.fractionLength(1))))",
                     systemImage: "checkmark.circle"
                 )
                 StudyStatChip(

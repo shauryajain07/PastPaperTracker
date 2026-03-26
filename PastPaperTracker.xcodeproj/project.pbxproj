@@ -23,6 +23,7 @@
 		456FFDBAA24FC59A1AF69232 /* ModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA8E1208FDF9C9CEF1C74268 /* ModelFactory.swift */; };
 		4BE4B3A8AAEA04AFD5D408B1 /* RemoteRecords.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3437AC178F17400030A3524 /* RemoteRecords.swift */; };
 		4E184C7082BA5279B072570D /* AnalyticsCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD490E29E87E401081C8A97 /* AnalyticsCalculator.swift */; };
+		4F1B978618A372074D490FCE /* PaperNameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F496CA903C086D853ACBBC60 /* PaperNameFormatter.swift */; };
 		521A76CD1F50374970523012 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45AB424ED6A5666B4FE00018 /* AuthView.swift */; };
 		54DA9B3785C1896A820000E3 /* TestDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEF522EC1B100ED62759E70 /* TestDetailView.swift */; };
 		55AFB7787F3C3EE536E48C61 /* RepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D684B9DFDF2C6620337AEDB /* RepositoryTests.swift */; };
@@ -155,6 +156,7 @@
 		E5A9E9F29586E0DC039E24BA /* brand-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "brand-logo.png"; sourceTree = "<group>"; };
 		EB275CA535FAAB9CA0598F3C /* MistakesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakesListView.swift; sourceTree = "<group>"; };
 		F3437AC178F17400030A3524 /* RemoteRecords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteRecords.swift; sourceTree = "<group>"; };
+		F496CA903C086D853ACBBC60 /* PaperNameFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperNameFormatter.swift; sourceTree = "<group>"; };
 		F51990418F4B911167AC326D /* WidgetSnapshotCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotCoordinator.swift; sourceTree = "<group>"; };
 		FBB67BDEC41C3F888A562C4A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		FDC9345DE8FC8F74532F88D2 /* MarkEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkEntry.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				BBD490E29E87E401081C8A97 /* AnalyticsCalculator.swift */,
 				37B0DA375359CD45DA875F12 /* Formatters.swift */,
 				D3487BCBB148162CF2918B71 /* ISO8601.swift */,
+				F496CA903C086D853ACBBC60 /* PaperNameFormatter.swift */,
 				14EB5EC35C786BC8D7741C9B /* SyncState.swift */,
 			);
 			path = Utilities;
@@ -563,6 +566,7 @@
 				116394CAEDC4B7B69B555B6A /* MistakeEntryRepository.swift in Sources */,
 				0D58B687332DDDAE98B5F544 /* MistakesListView.swift in Sources */,
 				456FFDBAA24FC59A1AF69232 /* ModelFactory.swift in Sources */,
+				4F1B978618A372074D490FCE /* PaperNameFormatter.swift in Sources */,
 				6FAC62EDA1CB30234256EAC8 /* PastPaperTrackerApp.swift in Sources */,
 				CE958692E9BD0D317C47EB31 /* PhotoStore.swift in Sources */,
 				4BE4B3A8AAEA04AFD5D408B1 /* RemoteRecords.swift in Sources */,
@@ -755,7 +759,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = PastPaperTracker/PastPaperTracker.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"pastpapertracker\"], \"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\"]]";
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\", \"CFBundleURLSchemes\": [\"pastpapertracker\"]]]";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -862,7 +866,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = PastPaperTracker/PastPaperTracker.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"pastpapertracker\"], \"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\"]]";
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\", \"CFBundleURLSchemes\": [\"pastpapertracker\"]]]";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

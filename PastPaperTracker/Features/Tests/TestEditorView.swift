@@ -8,7 +8,7 @@ struct TestEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var environment: AppEnvironment
     @Query private var subjects: [Subject]
-    @State private var paperName: String
+    @State private var paperFields: StandardizedPaperNameFields
     @State private var examDate: Date
     @State private var scoredMarksText: String
     @State private var totalMarksText: String
@@ -25,8 +25,12 @@ struct TestEditorView: View {
             filter: #Predicate<Subject> { $0.ownerId == ownerId && $0.syncStateRaw != deleted },
             sort: [SortDescriptor(\.name)]
         )
-        _paperName = State(initialValue: existingEntry?.paperName ?? "")
-        _examDate = State(initialValue: existingEntry?.examDate ?? .now)
+        let initialExamDate = existingEntry?.examDate ?? .now
+        _examDate = State(initialValue: initialExamDate)
+        _paperFields = State(
+            initialValue: existingEntry.flatMap { PaperNameFormatter.parse($0.paperName) }
+                ?? PaperNameFormatter.defaultFields(for: initialExamDate)
+        )
         _scoredMarksText = State(initialValue: existingEntry.map { String($0.scoredMarks) } ?? "")
         _totalMarksText = State(initialValue: existingEntry.map { String($0.totalMarks) } ?? "")
         _notes = State(initialValue: existingEntry?.notes ?? "")
@@ -37,8 +41,53 @@ struct TestEditorView: View {
         NavigationStack {
             Form {
                 Section("Paper") {
-                    TextField("Paper name", text: $paperName)
+                    TextField(
+                        "Year",
+                        text: Binding(
+                            get: { paperFields.year },
+                            set: { paperFields.year = digitsOnly($0, maxLength: 4) }
+                        )
+                    )
+                    .keyboardType(.numberPad)
+
+                    Picker("Session", selection: Binding(
+                        get: { paperFields.session },
+                        set: { paperFields.session = $0 }
+                    )) {
+                        ForEach(PastPaperSession.allCases) { session in
+                            Text(session.rawValue).tag(session)
+                        }
+                    }
+
+                    TextField(
+                        "Paper Number",
+                        text: Binding(
+                            get: { paperFields.paperNumber },
+                            set: { paperFields.paperNumber = digitsOnly($0) }
+                        )
+                    )
+                    .keyboardType(.numberPad)
+
+                    TextField(
+                        "Timezone Number",
+                        text: Binding(
+                            get: { paperFields.timezoneNumber },
+                            set: { paperFields.timezoneNumber = digitsOnly($0) }
+                        )
+                    )
+                    .keyboardType(.numberPad)
+
                     DatePicker("Exam date", selection: $examDate, displayedComponents: .date)
+                }
+
+                Section("Standardized Name") {
+                    Text(generatedPaperName)
+                        .font(.body.monospaced())
+                        .foregroundStyle(canBuildPaperName ? .primary : .secondary)
+
+                    Text("Format: [YEAR]-[M/N]-[Paper Number]-TZ[Timezone number]")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section("Marks") {
@@ -114,10 +163,24 @@ struct TestEditorView: View {
     }
 
     private var canSave: Bool {
-        !paperName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        canBuildPaperName &&
         selectedSubjectID != nil &&
         Double(scoredMarksText) != nil &&
         (Double(totalMarksText) ?? 0) > 0
+    }
+
+    private var canBuildPaperName: Bool {
+        paperFields.year.count == 4 &&
+        !paperFields.paperNumber.isEmpty &&
+        !paperFields.timezoneNumber.isEmpty
+    }
+
+    private var generatedPaperName: String {
+        guard canBuildPaperName else {
+            return "Complete all paper fields to generate the standardized name."
+        }
+
+        return PaperNameFormatter.build(from: paperFields)
     }
 
     private func save() {
@@ -126,11 +189,14 @@ struct TestEditorView: View {
             let subject = subjects.first(where: { $0.id == selectedSubjectID }),
             let scoredMarks = Double(scoredMarksText),
             let totalMarks = Double(totalMarksText),
-            totalMarks > 0
+            totalMarks > 0,
+            canBuildPaperName
         else {
-            errorMessage = "Choose a subject and enter valid mark values."
+            errorMessage = "Fill in the standardized paper fields, choose a subject, and enter valid mark values."
             return
         }
+
+        let paperName = PaperNameFormatter.build(from: paperFields)
 
         do {
             if let existingEntry {
@@ -162,6 +228,12 @@ struct TestEditorView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func digitsOnly(_ value: String, maxLength: Int? = nil) -> String {
+        let digits = value.filter(\.isNumber)
+        guard let maxLength else { return digits }
+        return String(digits.prefix(maxLength))
     }
 
     private func deleteEntry() {

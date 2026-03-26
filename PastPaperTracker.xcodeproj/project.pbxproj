@@ -18,12 +18,15 @@
 		36C10897028CE4063D2202C0 /* MistakeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A78A442DA0DD0D10FB284B1 /* MistakeEntry.swift */; };
 		3EF8705F46AB529451364ACD /* MistakeEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4085867F69FBC39E7205A7C9 /* MistakeEditorView.swift */; };
 		40ACEBFE9B96EEF319E38771 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F8A1F2362010207BF080E3 /* SupabaseConfig.swift */; };
+		42DE854CEC94AEF4A5F2311D /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862EA190A59B8C798DE58D85 /* WidgetSnapshot.swift */; };
+		42FDD59D990322450A5065B7 /* WidgetSnapshotCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51990418F4B911167AC326D /* WidgetSnapshotCoordinator.swift */; };
 		456FFDBAA24FC59A1AF69232 /* ModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA8E1208FDF9C9CEF1C74268 /* ModelFactory.swift */; };
 		4BE4B3A8AAEA04AFD5D408B1 /* RemoteRecords.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3437AC178F17400030A3524 /* RemoteRecords.swift */; };
 		4E184C7082BA5279B072570D /* AnalyticsCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD490E29E87E401081C8A97 /* AnalyticsCalculator.swift */; };
 		521A76CD1F50374970523012 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45AB424ED6A5666B4FE00018 /* AuthView.swift */; };
 		54DA9B3785C1896A820000E3 /* TestDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEF522EC1B100ED62759E70 /* TestDetailView.swift */; };
 		55AFB7787F3C3EE536E48C61 /* RepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D684B9DFDF2C6620337AEDB /* RepositoryTests.swift */; };
+		5C3235C2C80533640B35FB2B /* RevisionReminderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0B382D1E2455686C265DFE /* RevisionReminderStore.swift */; };
 		68BD75E80DDBB0832D357936 /* PhotoStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61981083E1D28B67599ED18 /* PhotoStoreTests.swift */; };
 		6A6645E1F64CAB2112DEBD9B /* StudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D7B34D48BFAF13C1BA5927 /* StudyTheme.swift */; };
 		6BD2DE774A3BE6D4B90C342B /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B0DA375359CD45DA875F12 /* Formatters.swift */; };
@@ -37,16 +40,23 @@
 		8D632908DBEEDA091A48E14C /* AppUserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC796C75EEAC80D5441324A /* AppUserSession.swift */; };
 		8EAC685B781E0031AA408A94 /* PastPaperTrackerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96C879C9AB96D7F68A361A98 /* PastPaperTrackerUITests.swift */; };
 		8ED35582C6566FE96586556A /* SettingsToolbarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2E189AAF1520803269A6E /* SettingsToolbarButton.swift */; };
+		8EFFF8180864BE8904A10C7F /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862EA190A59B8C798DE58D85 /* WidgetSnapshot.swift */; };
 		92751441BD7FF019B42AE87B /* Subject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E13CEB6B0B9619C88FE38F0 /* Subject.swift */; };
 		99FBEBDE6FA0C0B3252DE677 /* TestsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948E7F4D261816DA4DC803FC /* TestsListView.swift */; };
 		9EB8837340F2825283F86A05 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7FB5C1C585A08141C714F7E2 /* Supabase */; };
+		A7D2E9F530A1ED0023BC25E0 /* SubjectGraphConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16BC015616E552B27B4D1535 /* SubjectGraphConfigurationIntent.swift */; };
 		A929CB2C2A652263AFDEDB46 /* TestEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A42290B6D783947F8A1F30 /* TestEditorView.swift */; };
 		AA0A4B56C1ADF54FF46A34CF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23EDF15166DF728568FC1D23 /* AppEnvironment.swift */; };
+		AE9D0E6A3D9B68116C1661CA /* brand-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = E5A9E9F29586E0DC039E24BA /* brand-logo.png */; };
+		B1F86BACCD65C08948286055 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 854B3C04506C56059F2F6573 /* Assets.xcassets */; };
 		BDAFE6B4F8AE152208332885 /* AnalyticsCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF70F9DB2B9FA41A9888411 /* AnalyticsCalculatorTests.swift */; };
+		C61EE252E7CD4F37D84F9EBC /* PastPaperTrackerWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8FB1D87234A1B874C385ACE1 /* PastPaperTrackerWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C876290A33753E48D76F144F /* PastPaperTrackerWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A36779392D2543B17462167 /* PastPaperTrackerWidgets.swift */; };
 		CDFE25C0F62350D6AC4CE991 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11717FF6B15350DFFD44C5C /* SyncEngine.swift */; };
 		CE958692E9BD0D317C47EB31 /* PhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0828B6543706502413D9A51C /* PhotoStore.swift */; };
 		D405219B80B5AC36F6016756 /* MarkEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDC9345DE8FC8F74532F88D2 /* MarkEntry.swift */; };
 		D65867F6AB91F9CE151AE040 /* MistakeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 855AD72F1CE51C3DFE4D3F5D /* MistakeDetailView.swift */; };
+		DA0056976246B9D8C1E6F96E /* StudySummaryWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9EA2977BC3D2A97CB8F457 /* StudySummaryWidget.swift */; };
 		E401CCE7CBA17E71C1F2E39E /* SubjectRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A70A877249169F741E702D3 /* SubjectRepository.swift */; };
 		E8122712F5CC932942E75384 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D9853C18F8133C32670D1A /* MainTabView.swift */; };
 		EEEECF1D5DD6D383BA1BA24E /* MarkEntryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD157311B844BE5A41DBA7F /* MarkEntryRepository.swift */; };
@@ -67,7 +77,28 @@
 			remoteGlobalIDString = 671885025ABF27EED5884177;
 			remoteInfo = PastPaperTracker;
 		};
+		E9719C226E996925263B986D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0627ACCB878DAC39BC1AF027 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53F6F654CDD42EE41B234CD2;
+			remoteInfo = PastPaperTrackerWidgets;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4967052D3F806C7187900E6D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C61EE252E7CD4F37D84F9EBC /* PastPaperTrackerWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		05BC25AFD8C1669E82713F98 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
@@ -75,18 +106,23 @@
 		0828B6543706502413D9A51C /* PhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStore.swift; sourceTree = "<group>"; };
 		0DEF522EC1B100ED62759E70 /* TestDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDetailView.swift; sourceTree = "<group>"; };
 		14EB5EC35C786BC8D7741C9B /* SyncState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncState.swift; sourceTree = "<group>"; };
+		16BC015616E552B27B4D1535 /* SubjectGraphConfigurationIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectGraphConfigurationIntent.swift; sourceTree = "<group>"; };
 		1A1EF9F8EF1397C0FEDC1FF6 /* PastPaperTrackerTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PastPaperTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2127F017F29C9066AAEB5333 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		23EDF15166DF728568FC1D23 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		23F58B417A7C9BEE755C0D83 /* PastPaperTrackerWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PastPaperTrackerWidgets.entitlements; sourceTree = "<group>"; };
 		24EB3F4A6F6B2C28F0562FFC /* PastPaperTracker.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PastPaperTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		31BA934ED30723FD53A2679C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		37B0DA375359CD45DA875F12 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		4085867F69FBC39E7205A7C9 /* MistakeEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeEditorView.swift; sourceTree = "<group>"; };
 		45AB424ED6A5666B4FE00018 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		4A78A442DA0DD0D10FB284B1 /* MistakeEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeEntry.swift; sourceTree = "<group>"; };
+		4A9EA2977BC3D2A97CB8F457 /* StudySummaryWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySummaryWidget.swift; sourceTree = "<group>"; };
 		4E13CEB6B0B9619C88FE38F0 /* Subject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subject.swift; sourceTree = "<group>"; };
 		52D2E189AAF1520803269A6E /* SettingsToolbarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsToolbarButton.swift; sourceTree = "<group>"; };
 		54A42290B6D783947F8A1F30 /* TestEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEditorView.swift; sourceTree = "<group>"; };
 		579815657DD54F8B4D283CC9 /* SupabaseConfig.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = SupabaseConfig.plist; sourceTree = "<group>"; };
+		5C42D658E689F8B8C05A2A8F /* PastPaperTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PastPaperTracker.entitlements; sourceTree = "<group>"; };
 		5EF70F9DB2B9FA41A9888411 /* AnalyticsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsCalculatorTests.swift; sourceTree = "<group>"; };
 		60CE5DD3121294DC7595FF50 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		67B1BAA569224536DA850B88 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -94,10 +130,14 @@
 		6D684B9DFDF2C6620337AEDB /* RepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryTests.swift; sourceTree = "<group>"; };
 		7E64929511EED0E7874F1386 /* PastPaperTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastPaperTrackerApp.swift; sourceTree = "<group>"; };
 		7E6ECBF0BD3682CEA83537AC /* AttachmentThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentThumbnailView.swift; sourceTree = "<group>"; };
+		854B3C04506C56059F2F6573 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		855AD72F1CE51C3DFE4D3F5D /* MistakeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeDetailView.swift; sourceTree = "<group>"; };
+		862EA190A59B8C798DE58D85 /* WidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshot.swift; sourceTree = "<group>"; };
+		8FB1D87234A1B874C385ACE1 /* PastPaperTrackerWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PastPaperTrackerWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		93DB052778CEFF3D6F1545D9 /* LocalIdentityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalIdentityStore.swift; sourceTree = "<group>"; };
 		948E7F4D261816DA4DC803FC /* TestsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestsListView.swift; sourceTree = "<group>"; };
 		96C879C9AB96D7F68A361A98 /* PastPaperTrackerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastPaperTrackerUITests.swift; sourceTree = "<group>"; };
+		9A36779392D2543B17462167 /* PastPaperTrackerWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastPaperTrackerWidgets.swift; sourceTree = "<group>"; };
 		9BC796C75EEAC80D5441324A /* AppUserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUserSession.swift; sourceTree = "<group>"; };
 		A12F025561F8EB286AD22422 /* MistakeEntryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeEntryRepository.swift; sourceTree = "<group>"; };
 		A7EFB595E401CAC49B0EE454 /* PastPaperTrackerUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PastPaperTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -107,12 +147,15 @@
 		BBD490E29E87E401081C8A97 /* AnalyticsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsCalculator.swift; sourceTree = "<group>"; };
 		C11717FF6B15350DFFD44C5C /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		C4F8A1F2362010207BF080E3 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
+		CB0B382D1E2455686C265DFE /* RevisionReminderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionReminderStore.swift; sourceTree = "<group>"; };
 		D3487BCBB148162CF2918B71 /* ISO8601.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ISO8601.swift; sourceTree = "<group>"; };
 		D68D40CD47465DACBA60488C /* SubjectEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectEditorView.swift; sourceTree = "<group>"; };
 		D6F7E4BEE5B523E8FF7DF45A /* SyncMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMonitor.swift; sourceTree = "<group>"; };
 		DDD157311B844BE5A41DBA7F /* MarkEntryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkEntryRepository.swift; sourceTree = "<group>"; };
+		E5A9E9F29586E0DC039E24BA /* brand-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "brand-logo.png"; sourceTree = "<group>"; };
 		EB275CA535FAAB9CA0598F3C /* MistakesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakesListView.swift; sourceTree = "<group>"; };
 		F3437AC178F17400030A3524 /* RemoteRecords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteRecords.swift; sourceTree = "<group>"; };
+		F51990418F4B911167AC326D /* WidgetSnapshotCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotCoordinator.swift; sourceTree = "<group>"; };
 		FBB67BDEC41C3F888A562C4A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		FDC9345DE8FC8F74532F88D2 /* MarkEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkEntry.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -145,10 +188,12 @@
 				93DB052778CEFF3D6F1545D9 /* LocalIdentityStore.swift */,
 				0828B6543706502413D9A51C /* PhotoStore.swift */,
 				F3437AC178F17400030A3524 /* RemoteRecords.swift */,
+				CB0B382D1E2455686C265DFE /* RevisionReminderStore.swift */,
 				2127F017F29C9066AAEB5333 /* SessionStore.swift */,
 				C4F8A1F2362010207BF080E3 /* SupabaseConfig.swift */,
 				C11717FF6B15350DFFD44C5C /* SyncEngine.swift */,
 				D6F7E4BEE5B523E8FF7DF45A /* SyncMonitor.swift */,
+				F51990418F4B911167AC326D /* WidgetSnapshotCoordinator.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -209,6 +254,14 @@
 			path = Repositories;
 			sourceTree = "<group>";
 		};
+		7BF661F1BDF2E1FF78F33AE6 /* PastPaperTrackerShared */ = {
+			isa = PBXGroup;
+			children = (
+				862EA190A59B8C798DE58D85 /* WidgetSnapshot.swift */,
+			);
+			path = PastPaperTrackerShared;
+			sourceTree = "<group>";
+		};
 		81544777D86B29AD23743714 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -235,6 +288,8 @@
 		8EBCF413645A988C334AD6DC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				854B3C04506C56059F2F6573 /* Assets.xcassets */,
+				E5A9E9F29586E0DC039E24BA /* brand-logo.png */,
 				579815657DD54F8B4D283CC9 /* SupabaseConfig.plist */,
 			);
 			path = Resources;
@@ -284,8 +339,10 @@
 			isa = PBXGroup;
 			children = (
 				F577176A92009EA74F4EDFAB /* PastPaperTracker */,
+				7BF661F1BDF2E1FF78F33AE6 /* PastPaperTrackerShared */,
 				C3BC0935CD0457BE71654087 /* PastPaperTrackerTests */,
 				E0B2334D6DEC74D6F5DF50E9 /* PastPaperTrackerUITests */,
+				F9CDD484E3744A46BFB08F94 /* PastPaperTrackerWidgets */,
 				FD499272BCDEEDD4A3ED0E80 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -301,6 +358,7 @@
 		F577176A92009EA74F4EDFAB /* PastPaperTracker */ = {
 			isa = PBXGroup;
 			children = (
+				5C42D658E689F8B8C05A2A8F /* PastPaperTracker.entitlements */,
 				B0622C6DB51D27426005AD68 /* App */,
 				8D96BF80CEF948210E1E064E /* Features */,
 				53E80B57AC847BA14A651B0F /* Models */,
@@ -314,12 +372,25 @@
 			path = PastPaperTracker;
 			sourceTree = "<group>";
 		};
+		F9CDD484E3744A46BFB08F94 /* PastPaperTrackerWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				31BA934ED30723FD53A2679C /* Info.plist */,
+				23F58B417A7C9BEE755C0D83 /* PastPaperTrackerWidgets.entitlements */,
+				9A36779392D2543B17462167 /* PastPaperTrackerWidgets.swift */,
+				4A9EA2977BC3D2A97CB8F457 /* StudySummaryWidget.swift */,
+				16BC015616E552B27B4D1535 /* SubjectGraphConfigurationIntent.swift */,
+			);
+			path = PastPaperTrackerWidgets;
+			sourceTree = "<group>";
+		};
 		FD499272BCDEEDD4A3ED0E80 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				24EB3F4A6F6B2C28F0562FFC /* PastPaperTracker.app */,
 				1A1EF9F8EF1397C0FEDC1FF6 /* PastPaperTrackerTests.xctest */,
 				A7EFB595E401CAC49B0EE454 /* PastPaperTrackerUITests.xctest */,
+				8FB1D87234A1B874C385ACE1 /* PastPaperTrackerWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -345,6 +416,23 @@
 			productReference = 1A1EF9F8EF1397C0FEDC1FF6 /* PastPaperTrackerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		53F6F654CDD42EE41B234CD2 /* PastPaperTrackerWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A047FAED70D8F49252F585BA /* Build configuration list for PBXNativeTarget "PastPaperTrackerWidgets" */;
+			buildPhases = (
+				4736E1311CA0CCD1D178E630 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PastPaperTrackerWidgets;
+			packageProductDependencies = (
+			);
+			productName = PastPaperTrackerWidgets;
+			productReference = 8FB1D87234A1B874C385ACE1 /* PastPaperTrackerWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		671885025ABF27EED5884177 /* PastPaperTracker */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E50364C4DD512BFCDC6BE77C /* Build configuration list for PBXNativeTarget "PastPaperTracker" */;
@@ -352,10 +440,12 @@
 				2F838055D0D21F489BCAC301 /* Sources */,
 				EDAB66485B1B1AAAE766EABF /* Resources */,
 				BC11A29CB695883202716CD5 /* Frameworks */,
+				4967052D3F806C7187900E6D /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				EF23C80DA8FDF7C456966036 /* PBXTargetDependency */,
 			);
 			name = PastPaperTracker;
 			packageProductDependencies = (
@@ -393,12 +483,19 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					45AD2C4F6BDBA239E0A82476 = {
+						DevelopmentTeam = 7896UT9YH2;
+						ProvisioningStyle = Automatic;
+					};
+					53F6F654CDD42EE41B234CD2 = {
+						DevelopmentTeam = 7896UT9YH2;
 						ProvisioningStyle = Automatic;
 					};
 					671885025ABF27EED5884177 = {
+						DevelopmentTeam = 7896UT9YH2;
 						ProvisioningStyle = Automatic;
 					};
 					E6206CAF902591D49ACFF677 = {
+						DevelopmentTeam = 7896UT9YH2;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 671885025ABF27EED5884177;
 					};
@@ -424,6 +521,7 @@
 				671885025ABF27EED5884177 /* PastPaperTracker */,
 				45AD2C4F6BDBA239E0A82476 /* PastPaperTrackerTests */,
 				E6206CAF902591D49ACFF677 /* PastPaperTrackerUITests */,
+				53F6F654CDD42EE41B234CD2 /* PastPaperTrackerWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -433,7 +531,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1F86BACCD65C08948286055 /* Assets.xcassets in Resources */,
 				7D46105367326FF0C101011D /* SupabaseConfig.plist in Resources */,
+				AE9D0E6A3D9B68116C1661CA /* brand-logo.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +566,7 @@
 				6FAC62EDA1CB30234256EAC8 /* PastPaperTrackerApp.swift in Sources */,
 				CE958692E9BD0D317C47EB31 /* PhotoStore.swift in Sources */,
 				4BE4B3A8AAEA04AFD5D408B1 /* RemoteRecords.swift in Sources */,
+				5C3235C2C80533640B35FB2B /* RevisionReminderStore.swift in Sources */,
 				0EF2759FF5A034C1E7BE8EE6 /* RootView.swift in Sources */,
 				7911C00E4D31A85955ACC4A0 /* SessionStore.swift in Sources */,
 				8ED35582C6566FE96586556A /* SettingsToolbarButton.swift in Sources */,
@@ -481,6 +582,19 @@
 				54DA9B3785C1896A820000E3 /* TestDetailView.swift in Sources */,
 				A929CB2C2A652263AFDEDB46 /* TestEditorView.swift in Sources */,
 				99FBEBDE6FA0C0B3252DE677 /* TestsListView.swift in Sources */,
+				42DE854CEC94AEF4A5F2311D /* WidgetSnapshot.swift in Sources */,
+				42FDD59D990322450A5065B7 /* WidgetSnapshotCoordinator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4736E1311CA0CCD1D178E630 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C876290A33753E48D76F144F /* PastPaperTrackerWidgets.swift in Sources */,
+				DA0056976246B9D8C1E6F96E /* StudySummaryWidget.swift in Sources */,
+				A7D2E9F530A1ED0023BC25E0 /* SubjectGraphConfigurationIntent.swift in Sources */,
+				8EFFF8180864BE8904A10C7F /* WidgetSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -514,6 +628,11 @@
 			isa = PBXTargetDependency;
 			target = 671885025ABF27EED5884177 /* PastPaperTracker */;
 			targetProxy = E6603C3635B240C7E4DDFEC3 /* PBXContainerItemProxy */;
+		};
+		EF23C80DA8FDF7C456966036 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53F6F654CDD42EE41B234CD2 /* PastPaperTrackerWidgets */;
+			targetProxy = E9719C226E996925263B986D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -555,6 +674,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7896UT9YH2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -575,6 +695,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Past Paper Tracker";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture a photo for a mistake entry.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Attach a photo to a mistake entry.";
+				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "Get revision reminders every few hours so you can come back and log another past paper.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -632,6 +753,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PastPaperTracker/PastPaperTracker.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"pastpapertracker\"], \"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\"]]";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -643,6 +765,27 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		84029EFD2B77CEFDF0508967 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = PastPaperTrackerWidgets/PastPaperTrackerWidgets.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PastPaperTrackerWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shauryajain.PastPaperTracker.Widgets;
+				PRODUCT_NAME = PastPaperTrackerWidgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_MODULE_NAME = PastPaperTrackerWidgets;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		BF5378E032426A0D32A57512 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -681,6 +824,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7896UT9YH2;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -695,6 +839,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Past Paper Tracker";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture a photo for a mistake entry.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Attach a photo to a mistake entry.";
+				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "Get revision reminders every few hours so you can come back and log another past paper.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -715,6 +860,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PastPaperTracker/PastPaperTracker.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"pastpapertracker\"], \"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\"]]";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -744,6 +890,27 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PastPaperTracker.app/PastPaperTracker";
 			};
 			name = Debug;
+		};
+		F50580FB8ECB63482ABC5B6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = PastPaperTrackerWidgets/PastPaperTrackerWidgets.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PastPaperTrackerWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shauryajain.PastPaperTracker.Widgets;
+				PRODUCT_NAME = PastPaperTrackerWidgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_MODULE_NAME = PastPaperTrackerWidgets;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
 		};
 		F6B67B9DECEB11EDF455EA2C /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -780,6 +947,15 @@
 			buildConfigurations = (
 				F6B67B9DECEB11EDF455EA2C /* Debug */,
 				6767718EA93D8E7CA496FDE9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A047FAED70D8F49252F585BA /* Build configuration list for PBXNativeTarget "PastPaperTrackerWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84029EFD2B77CEFDF0508967 /* Debug */,
+				F50580FB8ECB63482ABC5B6B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

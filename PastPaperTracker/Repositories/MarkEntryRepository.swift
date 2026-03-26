@@ -4,6 +4,7 @@ import SwiftData
 @MainActor
 final class MarkEntryRepository {
     private let context: ModelContext
+    var didSave: (() -> Void)?
 
     init(context: ModelContext) {
         self.context = context
@@ -174,5 +175,6 @@ final class MarkEntryRepository {
 
     private func save() throws {
         try context.save()
+        didSave?()
     }
 }

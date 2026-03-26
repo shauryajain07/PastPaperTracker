@@ -1,8 +1,12 @@
 import SwiftUI
+import UIKit
+import UserNotifications
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @EnvironmentObject private var environment: AppEnvironment
+    @EnvironmentObject private var revisionReminderStore: RevisionReminderStore
     @EnvironmentObject private var sessionStore: SessionStore
     @EnvironmentObject private var syncMonitor: SyncMonitor
 
@@ -25,6 +29,50 @@ struct SettingsView: View {
                         }
                     }
                     .disabled(syncMonitor.isSyncing)
+                }
+
+                Section("Revision Reminders") {
+                    Toggle(
+                        "Enable Reminders",
+                        isOn: Binding(
+                            get: { revisionReminderStore.isEnabled },
+                            set: { enabled in
+                                Task {
+                                    await revisionReminderStore.setEnabled(enabled)
+                                }
+                            }
+                        )
+                    )
+
+                    Picker(
+                        "Repeat",
+                        selection: Binding(
+                            get: { revisionReminderStore.interval },
+                            set: { interval in
+                                Task {
+                                    await revisionReminderStore.setInterval(interval)
+                                }
+                            }
+                        )
+                    ) {
+                        ForEach(RevisionReminderInterval.allCases) { interval in
+                            Text(interval.label).tag(interval)
+                        }
+                    }
+                    .disabled(!revisionReminderStore.isEnabled)
+
+                    LabeledContent("Permission", value: notificationPermissionLabel)
+
+                    if revisionReminderStore.authorizationStatus == .denied {
+                        Button("Open System Settings") {
+                            guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
+                            openURL(settingsURL)
+                        }
+                    }
+
+                    Text("Past Paper Tracker will send a local revision reminder on the selected 4 to 6 hour cadence.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
 
                 if let error = syncMonitor.lastErrorMessage {
@@ -53,6 +101,9 @@ struct SettingsView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.clear)
+            .task {
+                await revisionReminderStore.refreshAuthorizationStatus()
+            }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -64,5 +115,18 @@ struct SettingsView: View {
             }
         }
         .studyScreenBackground()
+    }
+
+    private var notificationPermissionLabel: String {
+        switch revisionReminderStore.authorizationStatus {
+        case .authorized, .provisional, .ephemeral:
+            return "Allowed"
+        case .denied:
+            return "Denied"
+        case .notDetermined:
+            return "Not requested"
+        @unknown default:
+            return "Unknown"
+        }
     }
 }

@@ -22,6 +22,8 @@ struct AuthView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
                     VStack(alignment: .leading, spacing: 14) {
+                        StudyBrandMark(size: 110)
+
                         Text("PAST PAPER TRACKER")
                             .font(.caption.weight(.semibold))
                             .tracking(1.4)

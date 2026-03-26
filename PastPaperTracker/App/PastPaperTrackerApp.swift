@@ -9,6 +9,7 @@ struct PastPaperTrackerApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(environment)
+                .environmentObject(environment.revisionReminderStore)
                 .environmentObject(environment.sessionStore)
                 .environmentObject(environment.syncMonitor)
                 .modelContainer(environment.modelContainer)

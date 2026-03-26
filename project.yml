@@ -13,6 +13,7 @@ settings:
     SWIFT_VERSION: 6.0
     TARGETED_DEVICE_FAMILY: 1
     CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: 7896UT9YH2
     CURRENT_PROJECT_VERSION: 1
     MARKETING_VERSION: 1.0
     GENERATE_INFOPLIST_FILE: YES
@@ -22,6 +23,7 @@ settings:
     INFOPLIST_KEY_UILaunchScreen_Generation: YES
     INFOPLIST_KEY_NSPhotoLibraryUsageDescription: Attach a photo to a mistake entry.
     INFOPLIST_KEY_NSCameraUsageDescription: Capture a photo for a mistake entry.
+    INFOPLIST_KEY_NSUserNotificationsUsageDescription: Get revision reminders every few hours so you can come back and log another past paper.
 targets:
   PastPaperTracker:
     type: application
@@ -30,14 +32,18 @@ targets:
       - path: PastPaperTracker
         excludes:
           - Resources/SupabaseConfig.plist.example
+      - path: PastPaperTrackerShared
     resources:
       - path: PastPaperTracker/Resources
     dependencies:
       - package: Supabase
         product: Supabase
+      - target: PastPaperTrackerWidgets
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.shauryajain.PastPaperTracker
+        CODE_SIGN_ENTITLEMENTS: PastPaperTracker/PastPaperTracker.entitlements
         INFOPLIST_KEY_CFBundleURLTypes:
           - CFBundleURLName: com.shauryajain.PastPaperTracker
             CFBundleURLSchemes:
@@ -69,3 +75,27 @@ targets:
       base:
         PRODUCT_NAME: $(TARGET_NAME)
         SWIFT_MODULE_NAME: $(TARGET_NAME)
+  PastPaperTrackerWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: PastPaperTrackerWidgets
+      - path: PastPaperTrackerShared
+    info:
+      path: PastPaperTrackerWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Past Paper Widgets
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.shauryajain.PastPaperTracker.Widgets
+        PRODUCT_NAME: PastPaperTrackerWidgets
+        SWIFT_MODULE_NAME: PastPaperTrackerWidgets
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: PastPaperTrackerWidgets/Info.plist
+        APPLICATION_EXTENSION_API_ONLY: YES
+        CODE_SIGN_ENTITLEMENTS: PastPaperTrackerWidgets/PastPaperTrackerWidgets.entitlements
+        SKIP_INSTALL: YES

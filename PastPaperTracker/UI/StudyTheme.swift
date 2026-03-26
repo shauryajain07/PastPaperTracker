@@ -6,6 +6,14 @@ enum StudyTheme {
     static let warm = Color(red: 0.94, green: 0.80, blue: 0.54)
     static let rose = Color(red: 0.82, green: 0.47, blue: 0.51)
     static let ink = Color(red: 0.08, green: 0.11, blue: 0.17)
+    static let chartPalette: [Color] = [
+        accent,
+        accentDeep,
+        warm,
+        rose,
+        Color(red: 0.35, green: 0.58, blue: 0.92),
+        Color(red: 0.55, green: 0.44, blue: 0.85)
+    ]
 
     static func canvasGradient(for scheme: ColorScheme) -> LinearGradient {
         if scheme == .dark {
@@ -191,6 +199,33 @@ struct StudySectionHeader: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
+    }
+}
+
+struct StudyBrandMark: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var size: CGFloat = 96
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(StudyTheme.accent.opacity(colorScheme == .dark ? 0.20 : 0.12))
+                .frame(width: size * 0.92, height: size * 0.92)
+                .blur(radius: size * 0.18)
+
+            Image("brand-logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .shadow(
+                    color: StudyTheme.accent.opacity(colorScheme == .dark ? 0.16 : 0.10),
+                    radius: size * 0.14,
+                    y: size * 0.04
+                )
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
     }
 }
 
@@ -385,6 +420,62 @@ struct StudyFilterChip: View {
                             )
                     }
             }
+    }
+}
+
+struct StudyDashboardWidget: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: String
+    let value: String
+    let detail: String
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(title.uppercased())
+                        .font(.caption2.weight(.semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+
+                    Text(value)
+                        .font(.title2.weight(.bold))
+                        .fontDesign(.rounded)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: systemImage)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(tint)
+                    .frame(width: 38, height: 38)
+                    .background {
+                        Circle()
+                            .fill(tint.opacity(colorScheme == .dark ? 0.18 : 0.14))
+                    }
+            }
+
+            Text(detail)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity, minHeight: 126, alignment: .topLeading)
+        .padding(16)
+        .background {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(StudyTheme.subtleFill(for: colorScheme))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(StudyTheme.panelBorder(for: colorScheme), lineWidth: 1)
+                }
+        }
     }
 }
 

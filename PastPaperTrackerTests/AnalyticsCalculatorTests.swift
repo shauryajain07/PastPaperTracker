@@ -1,6 +1,7 @@
 import XCTest
 @testable import PastPaperTracker
 
+@MainActor
 final class AnalyticsCalculatorTests: XCTestCase {
     func testTrendPointsAreSortedChronologically() {
         let subject = Subject(ownerId: "user-1", name: "Math")
@@ -13,6 +14,8 @@ final class AnalyticsCalculatorTests: XCTestCase {
         XCTAssertLessThan(result[0].date, result[1].date)
         XCTAssertEqual(result[0].percentage, 60)
         XCTAssertEqual(result[1].percentage, 80)
+        XCTAssertEqual(result[0].subjectName, "Math")
+        XCTAssertEqual(result[1].subjectName, "Math")
     }
 
     func testSubjectAveragesGroupBySubjectName() {

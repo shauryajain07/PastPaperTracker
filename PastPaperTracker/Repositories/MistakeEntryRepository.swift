@@ -4,6 +4,7 @@ import SwiftData
 @MainActor
 final class MistakeEntryRepository {
     private let context: ModelContext
+    var didSave: (() -> Void)?
 
     init(context: ModelContext) {
         self.context = context
@@ -178,5 +179,6 @@ final class MistakeEntryRepository {
 
     private func save() throws {
         try context.save()
+        didSave?()
     }
 }

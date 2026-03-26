@@ -1,10 +1,15 @@
 import Foundation
 
 struct TrendPoint: Identifiable, Equatable {
+    let id: UUID
     let date: Date
     let percentage: Double
+    let subjectId: UUID?
+    let subjectName: String
 
-    var id: Date { date }
+    var subjectFilterKey: String {
+        subjectId?.uuidString.lowercased() ?? "unknown"
+    }
 }
 
 struct SubjectAverage: Identifiable, Equatable {
@@ -18,7 +23,15 @@ enum AnalyticsCalculator {
     static func trendPoints(from entries: [MarkEntry]) -> [TrendPoint] {
         entries
             .sorted { $0.examDate < $1.examDate }
-            .map { TrendPoint(date: $0.examDate, percentage: $0.percentage) }
+            .map {
+                TrendPoint(
+                    id: $0.id,
+                    date: $0.examDate,
+                    percentage: $0.percentage,
+                    subjectId: $0.subject?.id,
+                    subjectName: $0.subject?.name ?? "Unknown"
+                )
+            }
     }
 
     static func subjectAverages(from entries: [MarkEntry]) -> [SubjectAverage] {

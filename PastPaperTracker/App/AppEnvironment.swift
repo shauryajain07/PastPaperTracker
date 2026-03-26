@@ -10,9 +10,11 @@ final class AppEnvironment: ObservableObject {
     let syncMonitor = SyncMonitor()
     let photoStore = PhotoStore()
     let localIdentityStore = LocalIdentityStore()
+    let revisionReminderStore = RevisionReminderStore()
     let subjectRepository: SubjectRepository
     let markRepository: MarkEntryRepository
     let mistakeRepository: MistakeEntryRepository
+    private let widgetSnapshotCoordinator: WidgetSnapshotCoordinator
     private(set) lazy var syncEngine = SyncEngine(
         authService: authService,
         subjectRepository: subjectRepository,
@@ -29,19 +31,42 @@ final class AppEnvironment: ObservableObject {
         let context = modelContainer.mainContext
         self.config = SupabaseConfig.loadFromBundle()
         self.authService = SupabaseAuthService(config: config)
-        self.subjectRepository = SubjectRepository(context: context)
-        self.markRepository = MarkEntryRepository(context: context)
-        self.mistakeRepository = MistakeEntryRepository(context: context)
+        let subjectRepository = SubjectRepository(context: context)
+        let markRepository = MarkEntryRepository(context: context)
+        let mistakeRepository = MistakeEntryRepository(context: context)
+        self.subjectRepository = subjectRepository
+        self.markRepository = markRepository
+        self.mistakeRepository = mistakeRepository
+        let widgetSnapshotCoordinator = WidgetSnapshotCoordinator(
+            subjectRepository: subjectRepository,
+            markRepository: markRepository,
+            mistakeRepository: mistakeRepository
+        )
+        self.widgetSnapshotCoordinator = widgetSnapshotCoordinator
+
+        subjectRepository.didSave = { [weak self] in
+            self?.refreshWidgetSnapshot()
+        }
+        markRepository.didSave = { [weak self] in
+            self?.refreshWidgetSnapshot()
+        }
+        mistakeRepository.didSave = { [weak self] in
+            self?.refreshWidgetSnapshot()
+        }
     }
 
     func bootstrap() async {
         guard !hasBootstrapped else { return }
         hasBootstrapped = true
+        await revisionReminderStore.bootstrap()
 
         do {
             sessionStore.updateSession(try await authService.restoreSession())
             if let session = sessionStore.currentSession {
                 await syncEngine.sync(ownerId: session.id, isGuest: session.isGuest)
+                refreshWidgetSnapshot()
+            } else {
+                widgetSnapshotCoordinator.clearSnapshot()
             }
         } catch {
             sessionStore.setError(error.localizedDescription)
@@ -52,6 +77,7 @@ final class AppEnvironment: ObservableObject {
         let guestSession = localIdentityStore.guestSession()
         sessionStore.updateSession(guestSession)
         sessionStore.setError(nil)
+        refreshWidgetSnapshot()
     }
 
     func signIn(email: String, password: String) async {
@@ -79,6 +105,7 @@ final class AppEnvironment: ObservableObject {
         do {
             try await authService.signOut()
             sessionStore.updateSession(nil)
+            widgetSnapshotCoordinator.clearSnapshot()
         } catch {
             sessionStore.setError(error.localizedDescription)
         }
@@ -87,6 +114,7 @@ final class AppEnvironment: ObservableObject {
     func triggerSync() async {
         guard let session = sessionStore.currentSession else { return }
         await syncEngine.sync(ownerId: session.id, isGuest: session.isGuest)
+        refreshWidgetSnapshot()
     }
 
     private func authenticate(using action: () async throws -> AppUserSession) async {
@@ -105,5 +133,14 @@ final class AppEnvironment: ObservableObject {
         } catch {
             sessionStore.setError(error.localizedDescription)
         }
+    }
+
+    private func refreshWidgetSnapshot() {
+        guard let session = sessionStore.currentSession else {
+            widgetSnapshotCoordinator.clearSnapshot()
+            return
+        }
+
+        widgetSnapshotCoordinator.refreshSnapshot(ownerId: session.id)
     }
 }

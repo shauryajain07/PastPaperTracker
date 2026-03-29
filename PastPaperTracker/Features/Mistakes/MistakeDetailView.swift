@@ -37,20 +37,11 @@ struct MistakeDetailView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(mistake.subject?.name ?? "No subject")
-                    .font(.caption.weight(.semibold))
-                    .tracking(1.4)
-                    .foregroundStyle(.secondary)
-
-                Text(mistake.markEntry?.paperName ?? "Standalone review note")
-                    .font(.title2.weight(.semibold))
-                    .fontDesign(.rounded)
-
-                Text("Logged on \(Formatters.shortDate.string(from: mistake.createdAt))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+            StudyPageHeader(
+                eyebrow: mistake.subject?.name ?? "No subject",
+                title: mistake.markEntry?.paperName ?? "Standalone review note",
+                detail: "Logged on \(Formatters.shortDate.string(from: mistake.createdAt))"
+            )
 
             LazyVGrid(
                 columns: [

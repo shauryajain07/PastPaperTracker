@@ -9,6 +9,8 @@ struct DashboardView: View {
     @Query private var markEntries: [MarkEntry]
     @Query private var mistakes: [MistakeEntry]
     @State private var selectedSubjectFilter = "all"
+    @State private var showingNewTestSheet = false
+    @State private var showingNewMistakeSheet = false
 
     init(ownerId: String) {
         self.ownerId = ownerId
@@ -114,6 +116,10 @@ struct DashboardView: View {
         focusMarkEntries.max { $0.percentage < $1.percentage }
     }
 
+    private var focusLowestEntry: MarkEntry? {
+        focusMarkEntries.min { $0.percentage < $1.percentage }
+    }
+
     private var focusLatestEntry: MarkEntry? {
         focusMarkEntries.first
     }
@@ -198,6 +204,46 @@ struct DashboardView: View {
         effectiveSubjectFilter == "all" && Set(filteredTrendPoints.map(\.subjectName)).count > 1
     }
 
+    private var visibleSubjectNames: [String] {
+        Array(Set(filteredTrendPoints.map(\.subjectName))).sorted()
+    }
+
+    private var visibleSubjectColors: [Color] {
+        visibleSubjectNames.enumerated().map { index, _ in
+            StudyTheme.chartPalette[index % StudyTheme.chartPalette.count]
+        }
+    }
+
+    private var chartLatestValue: String {
+        guard let latest = focusLatestEntry else { return "--" }
+        return "\(latest.percentage.formatted(.number.precision(.fractionLength(0))))%"
+    }
+
+    private var chartRangeValue: String {
+        guard
+            let lowest = focusLowestEntry?.percentage,
+            let highest = focusBestEntry?.percentage
+        else { return "--" }
+
+        return "\(lowest.formatted(.number.precision(.fractionLength(0))))-\(highest.formatted(.number.precision(.fractionLength(0))))%"
+    }
+
+    private var chartVolumeTitle: String {
+        showSubjectLegend ? "Subjects" : "Papers"
+    }
+
+    private var chartVolumeValue: String {
+        showSubjectLegend ? "\(visibleSubjectNames.count)" : "\(focusMarkEntries.count)"
+    }
+
+    private var chartSummaryMetrics: [DashboardGraphMetric] {
+        [
+            DashboardGraphMetric(title: "Latest", value: chartLatestValue, tint: StudyTheme.accent),
+            DashboardGraphMetric(title: "Range", value: chartRangeValue, tint: StudyTheme.warm),
+            DashboardGraphMetric(title: chartVolumeTitle, value: chartVolumeValue, tint: StudyTheme.accentDeep)
+        ]
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -231,28 +277,25 @@ struct DashboardView: View {
                     SettingsToolbarButton()
                 }
             }
+            .sheet(isPresented: $showingNewTestSheet) {
+                TestEditorView(ownerId: ownerId)
+            }
+            .sheet(isPresented: $showingNewMistakeSheet) {
+                MistakeEditorView(ownerId: ownerId)
+            }
         }
     }
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(alignment: .top, spacing: 16) {
-                StudyBrandMark(size: 60)
+                StudyBrandMark(size: 62)
 
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("PAST PAPER TRACKER")
-                        .font(.caption.weight(.semibold))
-                        .tracking(1.4)
-                        .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
-
-                    Text("Revision snapshot")
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
-                        .foregroundStyle(.primary)
-
-                    Text(dashboardMessage)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                StudyPageHeader(
+                    eyebrow: "PAST PAPER TRACKER",
+                    title: "Revision snapshot",
+                    detail: dashboardMessage
+                )
             }
 
             LazyVGrid(
@@ -282,6 +325,22 @@ struct DashboardView: View {
                     value: totalMarksLost > 0 ? "\(totalMarksLost.formatted(.number.precision(.fractionLength(0)))) marks" : "\(mistakes.count) items",
                     systemImage: "exclamationmark.bubble"
                 )
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    showingNewTestSheet = true
+                } label: {
+                    Label("Log Test", systemImage: "plus.circle.fill")
+                }
+                .buttonStyle(StudyPrimaryButtonStyle())
+
+                Button {
+                    showingNewMistakeSheet = true
+                } label: {
+                    Label("Add Mistake", systemImage: "exclamationmark.bubble")
+                }
+                .buttonStyle(StudySecondaryButtonStyle())
             }
         }
         .studyPanel(padding: 24)
@@ -323,45 +382,7 @@ struct DashboardView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Performance Graph")
-                            .font(.headline.weight(.semibold))
-
-                        Text(focusChartDetail)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Group {
-                        if effectiveSubjectFilter == "all" {
-                            multiSubjectTrendChart
-                        } else {
-                            singleSubjectTrendChart
-                        }
-                    }
-
-                    HStack {
-                        if let focusLatestEntry {
-                            Text("Latest: \(focusLatestEntry.paperName)")
-                                .lineLimit(1)
-                        } else {
-                            Text("No latest paper yet")
-                        }
-
-                        Spacer(minLength: 12)
-
-                        if let focusImprovementFromPrevious {
-                            Text(
-                                focusImprovementFromPrevious >= 0
-                                    ? "Up \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
-                                    : "Down \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
-                            )
-                        } else {
-                            Text("Waiting for more data")
-                        }
-                    }
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    performanceGraphSection
                 }
             }
         }
@@ -414,7 +435,11 @@ struct DashboardView: View {
             .symbolSize(36)
             .foregroundStyle(by: .value("Subject", point.subjectName))
         }
-        .chartLegend(showSubjectLegend ? .visible : .hidden)
+        .chartForegroundStyleScale(
+            domain: visibleSubjectNames,
+            range: visibleSubjectColors
+        )
+        .chartLegend(.hidden)
         .chartYScale(domain: 0...100)
         .chartYAxis {
             AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) {
@@ -434,14 +459,41 @@ struct DashboardView: View {
         }
         .chartPlotStyle { plotArea in
             plotArea
-                .background(.primary.opacity(0.04))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(
+                    LinearGradient(
+                        colors: [
+                            StudyTheme.accent.opacity(0.06),
+                            .primary.opacity(0.03)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
-        .frame(height: 260)
+        .frame(height: 280)
     }
 
     private var singleSubjectTrendChart: some View {
         Chart(filteredTrendPoints) { point in
+            RuleMark(y: .value("Goal", 70))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [6, 6]))
+                .foregroundStyle(StudyTheme.warm.opacity(0.45))
+                .annotation(position: .topLeading) {
+                    Text("Goal")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(StudyTheme.warm)
+                }
+
+            RuleMark(y: .value("Average", focusAverage))
+                .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [3, 4]))
+                .foregroundStyle(StudyTheme.accentDeep.opacity(0.55))
+                .annotation(position: .topTrailing) {
+                    Text("Avg \(focusAverage.formatted(.number.precision(.fractionLength(0))))%")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(StudyTheme.accentDeep)
+                }
+
             AreaMark(
                 x: .value("Date", point.date),
                 y: .value("Percentage", point.percentage)
@@ -473,6 +525,10 @@ struct DashboardView: View {
             .symbolSize(40)
             .foregroundStyle(StudyTheme.accent)
         }
+        .chartForegroundStyleScale(
+            domain: visibleSubjectNames,
+            range: visibleSubjectColors
+        )
         .chartYScale(domain: 0...100)
         .chartYAxis {
             AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) {
@@ -492,10 +548,97 @@ struct DashboardView: View {
         }
         .chartPlotStyle { plotArea in
             plotArea
-                .background(.primary.opacity(0.04))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(
+                    LinearGradient(
+                        colors: [
+                            StudyTheme.accent.opacity(0.08),
+                            .primary.opacity(0.03)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
-        .frame(height: 260)
+        .frame(height: 280)
+    }
+
+    private var performanceGraphSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Performance Graph")
+                    .font(.headline.weight(.semibold))
+
+                Text(focusChartDetail)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 10),
+                    GridItem(.flexible(), spacing: 10),
+                    GridItem(.flexible(), spacing: 10)
+                ],
+                spacing: 10
+            ) {
+                ForEach(chartSummaryMetrics) { metric in
+                    DashboardGraphMetricCard(metric: metric)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 14) {
+                Group {
+                    if effectiveSubjectFilter == "all" {
+                        multiSubjectTrendChart
+                    } else {
+                        singleSubjectTrendChart
+                    }
+                }
+
+                if showSubjectLegend {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(Array(zip(visibleSubjectNames, visibleSubjectColors)), id: \.0) { subjectName, color in
+                                DashboardLegendChip(title: subjectName, color: color)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(16)
+            .background {
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(StudyTheme.panelFill(for: colorScheme))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 26, style: .continuous)
+                            .stroke(StudyTheme.panelBorder(for: colorScheme), lineWidth: 1)
+                    }
+            }
+
+            HStack {
+                if let focusLatestEntry {
+                    Text("Latest: \(focusLatestEntry.paperName)")
+                        .lineLimit(1)
+                } else {
+                    Text("No latest paper yet")
+                }
+
+                Spacer(minLength: 12)
+
+                if let focusImprovementFromPrevious {
+                    Text(
+                        focusImprovementFromPrevious >= 0
+                            ? "Up \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
+                            : "Down \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
+                    )
+                } else {
+                    Text("Waiting for more data")
+                }
+            }
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.secondary)
+        }
     }
 
     private var averagesSection: some View {
@@ -511,9 +654,18 @@ struct DashboardView: View {
                 ForEach(Array(averages.enumerated()), id: \.element.id) { index, average in
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            Text(average.subjectName)
-                                .font(.headline.weight(.semibold))
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Subject \(index + 1)")
+                                    .font(.caption.weight(.semibold))
+                                    .tracking(1.1)
+                                    .foregroundStyle(.secondary)
+
+                                Text(average.subjectName)
+                                    .font(.headline.weight(.semibold))
+                            }
+
                             Spacer()
+
                             StudyScorePill(percentage: average.averagePercentage)
                         }
 
@@ -522,13 +674,9 @@ struct DashboardView: View {
                             tint: StudyTheme.scoreColor(for: average.averagePercentage)
                         )
                     }
-
-                    if index < averages.count - 1 {
-                        Divider()
-                    }
+                    .studyCard(tint: StudyTheme.scoreColor(for: average.averagePercentage))
                 }
             }
-            .studyPanel()
         }
     }
 
@@ -549,24 +697,25 @@ struct DashboardView: View {
                 )
                 .studyPanel(padding: 28)
             } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(recentEntries.enumerated()), id: \.element.id) { index, entry in
+                LazyVStack(spacing: 14) {
+                    ForEach(recentEntries, id: \.id) { entry in
                         NavigationLink {
                             TestDetailView(entry: entry, ownerId: ownerId)
                         } label: {
-                            StudyTestRowContent(entry: entry)
-                                .padding(18)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            HStack(alignment: .center, spacing: 14) {
+                                StudyTestRowContent(entry: entry, noteLineLimit: 2)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                Image(systemName: "chevron.right")
+                                    .font(.footnote.weight(.bold))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .studyCard(padding: 18, tint: StudyTheme.scoreColor(for: entry.percentage))
                         }
                         .buttonStyle(.plain)
-
-                        if index < recentEntries.count - 1 {
-                            Divider()
-                                .padding(.horizontal, 18)
-                        }
                     }
                 }
-                .studyPanel(padding: 0)
             }
         }
     }
@@ -588,24 +737,25 @@ struct DashboardView: View {
                 )
                 .studyPanel(padding: 28)
             } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(recentMistakes.enumerated()), id: \.element.id) { index, mistake in
+                LazyVStack(spacing: 14) {
+                    ForEach(recentMistakes, id: \.id) { mistake in
                         NavigationLink {
                             MistakeDetailView(mistake: mistake, ownerId: ownerId)
                         } label: {
-                            StudyMistakeRowContent(mistake: mistake)
-                                .padding(18)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            HStack(alignment: .center, spacing: 14) {
+                                StudyMistakeRowContent(mistake: mistake)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                Image(systemName: "chevron.right")
+                                    .font(.footnote.weight(.bold))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .studyCard(padding: 18, tint: StudyTheme.rose)
                         }
                         .buttonStyle(.plain)
-
-                        if index < recentMistakes.count - 1 {
-                            Divider()
-                                .padding(.horizontal, 18)
-                        }
                     }
                 }
-                .studyPanel(padding: 0)
             }
         }
     }
@@ -619,4 +769,64 @@ private struct DashboardWidgetMetric: Identifiable {
     let tint: Color
 
     var id: String { title }
+}
+
+private struct DashboardGraphMetric: Identifiable {
+    let title: String
+    let value: String
+    let tint: Color
+
+    var id: String { title }
+}
+
+private struct DashboardGraphMetricCard: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let metric: DashboardGraphMetric
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(metric.title.uppercased())
+                .font(.caption2.weight(.semibold))
+                .tracking(1.1)
+                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+
+            Text(metric.value)
+                .font(.headline.weight(.bold))
+                .fontDesign(.rounded)
+                .foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(metric.tint.opacity(colorScheme == .dark ? 0.14 : 0.10))
+        }
+    }
+}
+
+private struct DashboardLegendChip: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(color)
+                .frame(width: 8, height: 8)
+
+            Text(title)
+                .font(.footnote.weight(.medium))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            colorScheme == .dark ? .white.opacity(0.08) : .white.opacity(0.62),
+            in: Capsule(style: .continuous)
+        )
+    }
 }

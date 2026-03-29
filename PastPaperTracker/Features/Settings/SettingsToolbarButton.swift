@@ -8,10 +8,8 @@ struct SettingsToolbarButton: View {
             isPresentingSettings = true
         } label: {
             Image(systemName: "gearshape.fill")
-                .font(.system(size: 14, weight: .semibold))
-                .padding(10)
-                .background(.ultraThinMaterial, in: Circle())
         }
+        .buttonStyle(StudyToolbarIconButtonStyle())
         .sheet(isPresented: $isPresentingSettings) {
             SettingsView()
         }

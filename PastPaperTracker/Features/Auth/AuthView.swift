@@ -21,21 +21,14 @@ struct AuthView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
-                    VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 18) {
                         StudyBrandMark(size: 110)
 
-                        Text("PAST PAPER TRACKER")
-                            .font(.caption.weight(.semibold))
-                            .tracking(1.4)
-                            .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
-
-                        Text("Track every paper with a calmer workflow.")
-                            .font(.system(size: 40, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-
-                        Text("Sign in to sync across devices, or stay local while you set the app up.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                        StudyPageHeader(
+                            eyebrow: "PAST PAPER TRACKER",
+                            title: headerTitle,
+                            detail: headerDetail
+                        )
                     }
 
                     VStack(alignment: .leading, spacing: 18) {
@@ -68,6 +61,10 @@ struct AuthView: View {
                         }
                         .buttonStyle(StudyPrimaryButtonStyle())
                         .disabled(isWorking || email.isEmpty || (mode != .reset && password.isEmpty))
+
+                        Text(modeHelperText)
+                            .font(.footnote)
+                            .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
 
                         if let message = sessionStore.lastErrorMessage {
                             Text(message)
@@ -103,12 +100,47 @@ struct AuthView: View {
                         .studyPanel(padding: 24)
                     }
                 }
+                .frame(maxWidth: 560, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal, 20)
                 .padding(.top, 28)
                 .padding(.bottom, 24)
             }
             .studyScreenBackground()
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private var headerTitle: String {
+        switch mode {
+        case .signIn:
+            return "A cleaner way to track every paper."
+        case .signUp:
+            return "Set up your revision workspace."
+        case .reset:
+            return "Get back into your account."
+        }
+    }
+
+    private var headerDetail: String {
+        switch mode {
+        case .signIn:
+            return "Sign in to sync results, mistakes, and reminders across your devices."
+        case .signUp:
+            return "Create an account to keep your study history backed up and available anywhere."
+        case .reset:
+            return "Enter your email and we will send a reset link so you can continue where you left off."
+        }
+    }
+
+    private var modeHelperText: String {
+        switch mode {
+        case .signIn:
+            return "Use the same email you want to sync with across devices."
+        case .signUp:
+            return "A new account keeps your tests and mistake review safely backed up."
+        case .reset:
+            return "Password reset emails can take a minute to arrive."
         }
     }
 

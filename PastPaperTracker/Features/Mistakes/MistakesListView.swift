@@ -3,7 +3,6 @@ import SwiftUI
 
 struct MistakesListView: View {
     let ownerId: String
-    @Environment(\.colorScheme) private var colorScheme
 
     @Query private var mistakes: [MistakeEntry]
     @State private var showingNewMistake = false
@@ -48,10 +47,8 @@ struct MistakesListView: View {
                         showingNewMistake = true
                     } label: {
                         Image(systemName: "plus")
-                            .font(.system(size: 15, weight: .semibold))
-                            .padding(10)
-                            .background(.ultraThinMaterial, in: Circle())
                     }
+                    .buttonStyle(StudyToolbarIconButtonStyle())
                 }
             }
             .sheet(isPresented: $showingNewMistake) {
@@ -74,23 +71,20 @@ struct MistakesListView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("MISTAKE LOG")
-                    .font(.caption.weight(.semibold))
-                    .tracking(1.4)
-                    .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+            StudyPageHeader(
+                eyebrow: "MISTAKE LOG",
+                title: "Review queue",
+                detail: mistakes.isEmpty
+                    ? "Capture the misses, attach the question, and make revision more specific."
+                    : "Keep recurring slips visible so the same paper pattern does not cost marks twice."
+            )
 
-                Text("Review queue")
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-
-                Text(
-                    mistakes.isEmpty
-                        ? "Capture the misses, attach the question, and make revision more specific."
-                        : "Keep recurring slips visible so the same paper pattern does not cost marks twice."
-                )
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Button {
+                showingNewMistake = true
+            } label: {
+                Label("Capture Mistake", systemImage: "plus.circle.fill")
             }
+            .buttonStyle(StudyPrimaryButtonStyle())
 
             LazyVGrid(
                 columns: [
@@ -131,24 +125,25 @@ struct MistakesListView: View {
                 detail: "Each entry keeps the context, subject, and image evidence together."
             )
 
-            VStack(spacing: 0) {
-                ForEach(Array(mistakes.enumerated()), id: \.element.id) { index, mistake in
+            LazyVStack(spacing: 14) {
+                ForEach(mistakes, id: \.id) { mistake in
                     NavigationLink {
                         MistakeDetailView(mistake: mistake, ownerId: ownerId)
                     } label: {
-                        StudyMistakeRowContent(mistake: mistake)
-                            .padding(18)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(alignment: .center, spacing: 14) {
+                            StudyMistakeRowContent(mistake: mistake)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.bold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .studyCard(padding: 18, tint: StudyTheme.rose)
                     }
                     .buttonStyle(.plain)
-
-                    if index < mistakes.count - 1 {
-                        Divider()
-                            .padding(.horizontal, 18)
-                    }
                 }
             }
-            .studyPanel(padding: 0)
         }
     }
 }

@@ -59,19 +59,11 @@ struct TestDetailView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(entry.subject?.name ?? "No subject")
-                    .font(.caption.weight(.semibold))
-                    .tracking(1.4)
-                    .foregroundStyle(.secondary)
-
-                Text("\(entry.percentage, specifier: "%.0f")%")
-                    .font(.system(size: 46, weight: .bold, design: .rounded))
-
-                Text("Taken on \(Formatters.shortDate.string(from: entry.examDate))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+            StudyPageHeader(
+                eyebrow: entry.subject?.name ?? "No subject",
+                title: "\(entry.percentage.formatted(.number.precision(.fractionLength(0))))%",
+                detail: "Taken on \(Formatters.shortDate.string(from: entry.examDate))"
+            )
 
             StudyProgressBar(
                 progress: entry.percentage / 100,

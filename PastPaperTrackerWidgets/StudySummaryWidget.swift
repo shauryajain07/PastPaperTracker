@@ -92,24 +92,28 @@ private struct SubjectTrendSmallView: View {
     var body: some View {
         WidgetSurface {
             if let subject = entry.subject {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 14) {
                     HStack(alignment: .top) {
                         WidgetHeader(
+                            eyebrow: "Pinned Subject",
                             title: subject.name,
                             subtitle: "\(subject.testCount) test\(subject.testCount == 1 ? "" : "s")"
                         )
                         Spacer(minLength: 8)
-                        ScoreBadge(value: subject.latestPercentage)
+                        ScoreBadge(value: subject.latestPercentage, label: "Latest")
                     }
 
-                    SubjectTrendChart(points: subject.trendPoints)
-                        .frame(height: 72)
-
-                    HStack {
-                        WidgetFootnote(title: "Avg", value: percentageText(subject.averagePercentage))
-                        Spacer()
-                        WidgetFootnote(title: "Latest", value: percentageText(subject.latestPercentage))
+                    WidgetChartFrame {
+                        SubjectTrendChart(points: subject.trendPoints)
                     }
+                    .frame(height: 72)
+
+                    WidgetStatsBar(
+                        items: [
+                            WidgetStatItem(title: "Average", value: percentageText(subject.averagePercentage)),
+                            WidgetStatItem(title: "Tests", value: "\(subject.testCount)")
+                        ]
+                    )
                 }
             } else {
                 WidgetEmptyState(
@@ -127,26 +131,29 @@ private struct SubjectTrendMediumView: View {
     var body: some View {
         WidgetSurface {
             if let subject = entry.subject {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 16) {
                     HStack(alignment: .top) {
                         WidgetHeader(
+                            eyebrow: "Subject Graph",
                             title: subject.name,
                             subtitle: subject.latestPaperName ?? "Latest paper"
                         )
                         Spacer(minLength: 12)
-                        ScoreBadge(value: subject.latestPercentage)
+                        ScoreBadge(value: subject.latestPercentage, label: "Latest")
                     }
 
-                    SubjectTrendChart(points: subject.trendPoints)
-                        .frame(height: 110)
-
-                    HStack {
-                        WidgetFootnote(title: "Average", value: percentageText(subject.averagePercentage))
-                        Spacer()
-                        WidgetFootnote(title: "Tests", value: "\(subject.testCount)")
-                        Spacer()
-                        WidgetFootnote(title: "Latest", value: percentageText(subject.latestPercentage))
+                    WidgetChartFrame {
+                        SubjectTrendChart(points: subject.trendPoints)
                     }
+                    .frame(height: 110)
+
+                    WidgetStatsBar(
+                        items: [
+                            WidgetStatItem(title: "Average", value: percentageText(subject.averagePercentage)),
+                            WidgetStatItem(title: "Tests", value: "\(subject.testCount)"),
+                            WidgetStatItem(title: "Latest", value: percentageText(subject.latestPercentage))
+                        ]
+                    )
                 }
             } else {
                 WidgetEmptyState(
@@ -164,29 +171,34 @@ private struct SubjectTrendLargeView: View {
     var body: some View {
         WidgetSurface {
             if let subject = entry.subject {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 18) {
                     HStack(alignment: .top) {
                         WidgetHeader(
+                            eyebrow: "Subject Graph",
                             title: subject.name,
                             subtitle: subject.latestPaperName ?? "Latest paper"
                         )
                         Spacer(minLength: 12)
-                        ScoreBadge(value: subject.latestPercentage)
+                        ScoreBadge(value: subject.latestPercentage, label: "Latest")
                     }
 
-                    SubjectTrendChart(points: subject.trendPoints)
-                        .frame(height: 150)
-
-                    HStack(spacing: 12) {
-                        WidgetMetricPill(title: "Average", value: percentageText(subject.averagePercentage))
-                        WidgetMetricPill(title: "Tests", value: "\(subject.testCount)")
-                        WidgetMetricPill(title: "Latest", value: percentageText(subject.latestPercentage))
+                    WidgetChartFrame {
+                        SubjectTrendChart(points: subject.trendPoints)
                     }
+                    .frame(height: 150)
+
+                    WidgetStatsBar(
+                        items: [
+                            WidgetStatItem(title: "Average", value: percentageText(subject.averagePercentage)),
+                            WidgetStatItem(title: "Tests", value: "\(subject.testCount)"),
+                            WidgetStatItem(title: "Latest", value: percentageText(subject.latestPercentage))
+                        ]
+                    )
 
                     if let latestPaperName = subject.latestPaperName {
                         Text(latestPaperName)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.white.opacity(0.78))
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(WidgetPalette.secondaryText)
                             .lineLimit(1)
                     }
                 }
@@ -205,6 +217,10 @@ private struct SubjectTrendChart: View {
 
     var body: some View {
         Chart {
+            RuleMark(y: .value("Benchmark", 50))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                .foregroundStyle(.white.opacity(0.16))
+
             if points.count > 1 {
                 ForEach(points) { point in
                     AreaMark(
@@ -215,8 +231,8 @@ private struct SubjectTrendChart: View {
                     .foregroundStyle(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(0.30),
-                                Color.white.opacity(0.05)
+                                WidgetPalette.mint.opacity(0.30),
+                                WidgetPalette.mint.opacity(0.02)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -235,8 +251,8 @@ private struct SubjectTrendChart: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Color.white,
-                            Color(red: 0.98, green: 0.82, blue: 0.48)
+                            WidgetPalette.mint,
+                            WidgetPalette.amber
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -249,7 +265,7 @@ private struct SubjectTrendChart: View {
                     x: .value("Date", latestPoint.date),
                     y: .value("Percentage", latestPoint.percentage)
                 )
-                .symbolSize(48)
+                .symbolSize(72)
                 .foregroundStyle(Color.white)
             }
         }
@@ -258,8 +274,7 @@ private struct SubjectTrendChart: View {
         .chartYAxis(.hidden)
         .chartPlotStyle { plotArea in
             plotArea
-                .background(.white.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(.clear)
         }
     }
 }
@@ -269,36 +284,72 @@ private struct WidgetSurface<Content: View>: View {
 
     var body: some View {
         content
-            .padding(16)
+            .padding(18)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .overlay {
+                ContainerRelativeShape()
+                    .stroke(.white.opacity(0.10), lineWidth: 1)
+            }
             .containerBackground(for: .widget) {
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.10, green: 0.15, blue: 0.28),
-                        Color(red: 0.10, green: 0.30, blue: 0.32),
-                        Color(red: 0.24, green: 0.60, blue: 0.53)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            WidgetPalette.navy,
+                            WidgetPalette.deepTeal,
+                            WidgetPalette.moss
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+
+                    Circle()
+                        .fill(WidgetPalette.amber.opacity(0.26))
+                        .frame(width: 180, height: 180)
+                        .blur(radius: 48)
+                        .offset(x: 74, y: -72)
+
+                    Circle()
+                        .fill(WidgetPalette.mint.opacity(0.18))
+                        .frame(width: 220, height: 220)
+                        .blur(radius: 58)
+                        .offset(x: -92, y: 110)
+
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0.10),
+                            .clear,
+                            .black.opacity(0.18)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
             }
     }
 }
 
 private struct WidgetHeader: View {
+    let eyebrow: String
     let title: String
     let subtitle: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title.uppercased())
+        VStack(alignment: .leading, spacing: 6) {
+            Text(eyebrow.uppercased())
                 .font(.caption2.weight(.semibold))
-                .tracking(1.0)
-                .foregroundStyle(.white.opacity(0.70))
+                .tracking(1.2)
+                .foregroundStyle(WidgetPalette.secondaryText)
                 .lineLimit(1)
 
-            Text(subtitle)
-                .font(.subheadline.weight(.semibold))
+            Text(title)
+                .font(.system(size: 19, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+
+            Text(subtitle)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(WidgetPalette.secondaryText)
                 .lineLimit(1)
         }
     }
@@ -306,46 +357,76 @@ private struct WidgetHeader: View {
 
 private struct ScoreBadge: View {
     let value: Double?
-
-    var body: some View {
-        Text(percentageText(value))
-            .font(.system(size: 24, weight: .bold, design: .rounded))
-            .foregroundStyle(.white)
-    }
-}
-
-private struct WidgetFootnote: View {
-    let title: String
-    let value: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title.uppercased())
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.66))
-            Text(value)
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.white)
-        }
-    }
-}
-
-private struct WidgetMetricPill: View {
-    let title: String
-    let value: String
+    let label: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title.uppercased())
+            Text(label.uppercased())
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.68))
-            Text(value)
-                .font(.headline.weight(.bold))
+                .tracking(1.1)
+                .foregroundStyle(WidgetPalette.secondaryText)
+
+            Text(percentageText(value))
+                .font(.system(size: 24, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.white.opacity(0.10))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(.white.opacity(0.10), lineWidth: 1)
+                }
+        }
+    }
+}
+
+private struct WidgetStatItem: Identifiable {
+    var id: String { title }
+    let title: String
+    let value: String
+}
+
+private struct WidgetStatsBar: View {
+    let items: [WidgetStatItem]
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.title.uppercased())
+                        .font(.caption2.weight(.semibold))
+                        .tracking(1.0)
+                        .foregroundStyle(WidgetPalette.secondaryText)
+
+                    Text(item.value)
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                if index < items.count - 1 {
+                    Rectangle()
+                        .fill(.white.opacity(0.10))
+                        .frame(width: 1)
+                        .padding(.vertical, 2)
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.white.opacity(0.08))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(.white.opacity(0.08), lineWidth: 1)
+                }
+        }
     }
 }
 
@@ -354,18 +435,45 @@ private struct WidgetEmptyState: View {
     let message: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            WidgetHeader(title: title, subtitle: "Graph unavailable")
+        VStack(alignment: .leading, spacing: 12) {
+            WidgetHeader(eyebrow: "Subject Graph", title: title, subtitle: "Graph unavailable")
 
             Spacer(minLength: 0)
 
             Text(message)
                 .font(.footnote)
-                .foregroundStyle(.white.opacity(0.80))
+                .foregroundStyle(WidgetPalette.secondaryText)
 
             Spacer(minLength: 0)
         }
     }
+}
+
+private struct WidgetChartFrame<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        content
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
+            .background {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.white.opacity(0.07))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(.white.opacity(0.08), lineWidth: 1)
+                    }
+            }
+    }
+}
+
+private enum WidgetPalette {
+    static let navy = Color(red: 0.07, green: 0.10, blue: 0.19)
+    static let deepTeal = Color(red: 0.08, green: 0.24, blue: 0.28)
+    static let moss = Color(red: 0.21, green: 0.50, blue: 0.44)
+    static let mint = Color(red: 0.66, green: 0.97, blue: 0.88)
+    static let amber = Color(red: 0.97, green: 0.80, blue: 0.51)
+    static let secondaryText = Color.white.opacity(0.74)
 }
 
 private func emptyStateMessage(snapshot: WidgetDashboardSnapshot, selectedSubjectName: String?) -> String {

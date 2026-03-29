@@ -1,18 +1,18 @@
 import SwiftUI
 
 enum StudyTheme {
-    static let accent = Color(red: 0.22, green: 0.77, blue: 0.69)
-    static let accentDeep = Color(red: 0.08, green: 0.49, blue: 0.46)
-    static let warm = Color(red: 0.94, green: 0.80, blue: 0.54)
-    static let rose = Color(red: 0.82, green: 0.47, blue: 0.51)
-    static let ink = Color(red: 0.08, green: 0.11, blue: 0.17)
+    static let accent = Color(red: 0.18, green: 0.48, blue: 0.96)
+    static let accentDeep = Color(red: 0.10, green: 0.29, blue: 0.74)
+    static let warm = Color(red: 0.95, green: 0.72, blue: 0.35)
+    static let rose = Color(red: 0.87, green: 0.35, blue: 0.43)
+    static let ink = Color(red: 0.07, green: 0.10, blue: 0.17)
     static let chartPalette: [Color] = [
         accent,
         accentDeep,
         warm,
         rose,
-        Color(red: 0.35, green: 0.58, blue: 0.92),
-        Color(red: 0.55, green: 0.44, blue: 0.85)
+        Color(red: 0.26, green: 0.67, blue: 0.80),
+        Color(red: 0.52, green: 0.44, blue: 0.89)
     ]
 
     static func canvasGradient(for scheme: ColorScheme) -> LinearGradient {
@@ -20,8 +20,8 @@ enum StudyTheme {
             return LinearGradient(
                 colors: [
                     StudyTheme.ink,
-                    Color(red: 0.11, green: 0.15, blue: 0.24),
-                    Color(red: 0.18, green: 0.17, blue: 0.23)
+                    Color(red: 0.09, green: 0.14, blue: 0.24),
+                    Color(red: 0.14, green: 0.17, blue: 0.26)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -31,8 +31,8 @@ enum StudyTheme {
         return LinearGradient(
             colors: [
                 Color(red: 0.97, green: 0.98, blue: 1.00),
-                Color(red: 0.92, green: 0.95, blue: 0.98),
-                Color(red: 0.99, green: 0.94, blue: 0.89)
+                Color(red: 0.93, green: 0.95, blue: 0.99),
+                Color(red: 0.95, green: 0.96, blue: 0.98)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -45,7 +45,8 @@ enum StudyTheme {
                 LinearGradient(
                     colors: [
                         .white.opacity(0.14),
-                        .white.opacity(0.06)
+                        accent.opacity(0.08),
+                        .white.opacity(0.05)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -56,8 +57,9 @@ enum StudyTheme {
         return AnyShapeStyle(
             LinearGradient(
                 colors: [
-                    .white.opacity(0.94),
-                    .white.opacity(0.78)
+                    .white.opacity(0.95),
+                    accent.opacity(0.06),
+                    .white.opacity(0.82)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -67,26 +69,30 @@ enum StudyTheme {
 
     static func subtleFill(for scheme: ColorScheme) -> AnyShapeStyle {
         if scheme == .dark {
-            return AnyShapeStyle(.white.opacity(0.06))
+            return AnyShapeStyle(.white.opacity(0.08))
         }
 
-        return AnyShapeStyle(.white.opacity(0.58))
+        return AnyShapeStyle(.white.opacity(0.72))
     }
 
     static func panelBorder(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? .white.opacity(0.10) : .white.opacity(0.72)
+        scheme == .dark ? .white.opacity(0.12) : .white.opacity(0.84)
+    }
+
+    static func chromeBorder(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? .white.opacity(0.14) : Color.white.opacity(0.92)
     }
 
     static func shadow(for scheme: ColorScheme) -> Color {
         scheme == .dark
             ? .black.opacity(0.28)
-            : Color(red: 0.31, green: 0.38, blue: 0.50).opacity(0.16)
+            : Color(red: 0.20, green: 0.28, blue: 0.41).opacity(0.12)
     }
 
     static func mutedText(for scheme: ColorScheme) -> Color {
         scheme == .dark
             ? .white.opacity(0.72)
-            : Color(red: 0.31, green: 0.37, blue: 0.46)
+            : Color(red: 0.34, green: 0.39, blue: 0.49)
     }
 
     static func scoreColor(for percentage: Double) -> Color {
@@ -109,16 +115,22 @@ private struct StudyBackgroundLayer: View {
             StudyTheme.canvasGradient(for: colorScheme)
 
             Circle()
-                .fill(StudyTheme.accent.opacity(colorScheme == .dark ? 0.24 : 0.16))
-                .frame(width: 320, height: 320)
-                .blur(radius: 64)
-                .offset(x: 180, y: -260)
+                .fill(StudyTheme.accent.opacity(colorScheme == .dark ? 0.20 : 0.12))
+                .frame(width: 340, height: 340)
+                .blur(radius: 72)
+                .offset(x: 190, y: -270)
 
             Circle()
-                .fill(StudyTheme.warm.opacity(colorScheme == .dark ? 0.14 : 0.22))
-                .frame(width: 280, height: 280)
+                .fill(StudyTheme.warm.opacity(colorScheme == .dark ? 0.08 : 0.12))
+                .frame(width: 300, height: 300)
+                .blur(radius: 64)
+                .offset(x: -180, y: 280)
+
+            Circle()
+                .fill(StudyTheme.accentDeep.opacity(colorScheme == .dark ? 0.16 : 0.06))
+                .frame(width: 240, height: 240)
                 .blur(radius: 56)
-                .offset(x: -170, y: 260)
+                .offset(x: -150, y: -180)
         }
         .ignoresSafeArea()
     }
@@ -142,13 +154,13 @@ private struct StudyPanelModifier: ViewModifier {
         content
             .padding(padding)
             .background {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
                     .fill(StudyTheme.panelFill(for: colorScheme))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
                             .stroke(StudyTheme.panelBorder(for: colorScheme), lineWidth: 1)
                     }
-                    .shadow(color: StudyTheme.shadow(for: colorScheme), radius: 24, y: 14)
+                    .shadow(color: StudyTheme.shadow(for: colorScheme), radius: 24, y: 16)
             }
     }
 }
@@ -161,12 +173,59 @@ private struct StudyInputModifier: ViewModifier {
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .background {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(StudyTheme.subtleFill(for: colorScheme))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
                             .stroke(StudyTheme.panelBorder(for: colorScheme), lineWidth: 1)
                     }
+            }
+    }
+}
+
+private struct StudyCardModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let padding: CGFloat
+    let tint: Color
+
+    func body(content: Content) -> some View {
+        content
+            .padding(padding)
+            .background {
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: colorScheme == .dark
+                                ? [
+                                    .white.opacity(0.11),
+                                    tint.opacity(0.08),
+                                    .white.opacity(0.05)
+                                ]
+                                : [
+                                    .white.opacity(0.96),
+                                    tint.opacity(0.08),
+                                    .white.opacity(0.88)
+                                ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 26, style: .continuous)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(colorScheme == .dark ? 0.18 : 0.98),
+                                        tint.opacity(colorScheme == .dark ? 0.16 : 0.20)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    }
+                    .shadow(color: tint.opacity(colorScheme == .dark ? 0.10 : 0.08), radius: 18, y: 10)
             }
     }
 }
@@ -183,21 +242,27 @@ extension View {
     func studyInputField() -> some View {
         modifier(StudyInputModifier())
     }
+
+    func studyCard(padding: CGFloat = 18, tint: Color = StudyTheme.accent) -> some View {
+        modifier(StudyCardModifier(padding: padding, tint: tint))
+    }
 }
 
 struct StudySectionHeader: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let title: String
     let detail: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.title3.weight(.semibold))
                 .fontDesign(.rounded)
 
             Text(detail)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
         }
     }
 }
@@ -237,36 +302,73 @@ struct StudyStatChip: View {
     let systemImage: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: systemImage)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(StudyTheme.accent)
-                .frame(width: 34, height: 34)
-                .background {
-                    Circle()
-                        .fill(StudyTheme.accent.opacity(colorScheme == .dark ? 0.18 : 0.14))
-                }
-
-            VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 10) {
                 Text(title.uppercased())
                     .font(.caption2.weight(.semibold))
                     .tracking(1.2)
                     .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
 
-                Text(value)
-                    .font(.headline.weight(.semibold))
-                    .fontDesign(.rounded)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+                Spacer(minLength: 0)
+
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(StudyTheme.accent)
+                    .frame(width: 34, height: 34)
+                    .background {
+                        Circle()
+                            .fill(StudyTheme.accent.opacity(colorScheme == .dark ? 0.18 : 0.12))
+                            .overlay {
+                                Circle()
+                                    .stroke(.white.opacity(colorScheme == .dark ? 0.12 : 0.42), lineWidth: 1)
+                            }
+                    }
             }
 
-            Spacer(minLength: 0)
+            Text(value)
+                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.76)
+
+            Capsule(style: .continuous)
+                .fill(StudyTheme.accent.opacity(colorScheme == .dark ? 0.92 : 0.74))
+                .frame(width: 42, height: 4)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity, minHeight: 106, alignment: .topLeading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
         .background {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(StudyTheme.subtleFill(for: colorScheme))
+                .fill(
+                    LinearGradient(
+                        colors: colorScheme == .dark
+                            ? [
+                                .white.opacity(0.10),
+                                .white.opacity(0.04)
+                            ]
+                            : [
+                                .white.opacity(0.96),
+                                StudyTheme.accent.opacity(0.08)
+                            ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    .white.opacity(colorScheme == .dark ? 0.16 : 0.90),
+                                    StudyTheme.accent.opacity(colorScheme == .dark ? 0.14 : 0.24)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
         }
     }
 }
@@ -285,6 +387,34 @@ struct StudyScorePill: View {
                 Capsule(style: .continuous)
                     .fill(StudyTheme.scoreColor(for: percentage).opacity(0.14))
             }
+    }
+}
+
+struct StudyMetaChip: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: String
+    var systemImage: String? = nil
+    var tint: Color = StudyTheme.accentDeep
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if let systemImage {
+                Image(systemName: systemImage)
+                    .font(.caption2.weight(.semibold))
+            }
+
+            Text(title)
+                .lineLimit(1)
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(colorScheme == .dark ? tint.opacity(0.92) : tint)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background {
+            Capsule(style: .continuous)
+                .fill(tint.opacity(colorScheme == .dark ? 0.18 : 0.12))
+        }
     }
 }
 
@@ -334,6 +464,109 @@ struct StudyEmptyState: View {
     }
 }
 
+struct StudyPageHeader: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let eyebrow: String
+    let title: String
+    let detail: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(eyebrow)
+                .font(.caption.weight(.semibold))
+                .tracking(1.4)
+                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+
+            Text(title)
+                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+
+            Text(detail)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+struct StudyInfoRow: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: String
+    let value: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 16) {
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+
+            Spacer(minLength: 12)
+
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .multilineTextAlignment(.trailing)
+                .foregroundStyle(.primary)
+        }
+    }
+}
+
+struct StudyFieldBlock<Content: View>: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: String
+    let detail: String?
+    let content: Content
+
+    init(
+        title: String,
+        detail: String? = nil,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.title = title
+        self.detail = detail
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+
+            if let detail {
+                Text(detail)
+                    .font(.footnote)
+                    .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+            }
+
+            content
+        }
+    }
+}
+
+struct StudyToolbarIconButtonStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(.primary)
+            .frame(width: 40, height: 40)
+            .background {
+                Circle()
+                    .fill(StudyTheme.panelFill(for: colorScheme))
+                    .overlay {
+                        Circle()
+                            .stroke(StudyTheme.chromeBorder(for: colorScheme), lineWidth: 1)
+                    }
+                    .shadow(color: StudyTheme.shadow(for: colorScheme), radius: 10, y: 6)
+            }
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .opacity(configuration.isPressed ? 0.92 : 1)
+    }
+}
+
 struct StudyPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -343,7 +576,7 @@ struct StudyPrimaryButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: [
@@ -371,10 +604,10 @@ struct StudySecondaryButtonStyle: ButtonStyle {
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity)
             .background {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(StudyTheme.subtleFill(for: colorScheme))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
                             .stroke(StudyTheme.panelBorder(for: colorScheme), lineWidth: 1)
                     }
             }
@@ -433,7 +666,7 @@ struct StudyDashboardWidget: View {
     let tint: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title.uppercased())
@@ -442,10 +675,10 @@ struct StudyDashboardWidget: View {
                         .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
 
                     Text(value)
-                        .font(.title2.weight(.bold))
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
                         .fontDesign(.rounded)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .minimumScaleFactor(0.74)
                 }
 
                 Spacer(minLength: 0)
@@ -453,28 +686,65 @@ struct StudyDashboardWidget: View {
                 Image(systemName: systemImage)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(tint)
-                    .frame(width: 38, height: 38)
+                    .frame(width: 42, height: 42)
                     .background {
                         Circle()
-                            .fill(tint.opacity(colorScheme == .dark ? 0.18 : 0.14))
+                            .fill(tint.opacity(colorScheme == .dark ? 0.20 : 0.14))
+                            .overlay {
+                                Circle()
+                                    .stroke(.white.opacity(colorScheme == .dark ? 0.12 : 0.46), lineWidth: 1)
+                            }
                     }
             }
 
-            Text(detail)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.85)
+            Spacer(minLength: 0)
+
+            VStack(alignment: .leading, spacing: 10) {
+                Capsule(style: .continuous)
+                    .fill(tint.opacity(colorScheme == .dark ? 0.92 : 0.78))
+                    .frame(width: 54, height: 4)
+
+                Text(detail)
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.82)
+            }
         }
-        .frame(maxWidth: .infinity, minHeight: 126, alignment: .topLeading)
-        .padding(16)
+        .frame(maxWidth: .infinity, minHeight: 138, alignment: .topLeading)
+        .padding(18)
         .background {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(StudyTheme.subtleFill(for: colorScheme))
+                .fill(
+                    LinearGradient(
+                        colors: colorScheme == .dark
+                            ? [
+                                .white.opacity(0.11),
+                                tint.opacity(0.08)
+                            ]
+                            : [
+                                .white.opacity(0.95),
+                                tint.opacity(0.10)
+                            ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
                 .overlay {
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(StudyTheme.panelBorder(for: colorScheme), lineWidth: 1)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    .white.opacity(colorScheme == .dark ? 0.18 : 0.96),
+                                    tint.opacity(colorScheme == .dark ? 0.18 : 0.22)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
                 }
+                .shadow(color: tint.opacity(colorScheme == .dark ? 0.10 : 0.08), radius: 20, y: 10)
         }
     }
 }
@@ -484,40 +754,41 @@ struct StudyTestRowContent: View {
     var noteLineLimit = 1
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        StudyMetaChip(title: entry.subject?.name ?? "No subject", systemImage: "books.vertical")
+                        StudyMetaChip(title: Formatters.shortDate.string(from: entry.examDate), systemImage: "calendar", tint: StudyTheme.warm)
+                    }
+
                     Text(entry.paperName)
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(.primary)
 
-                    Text("\(entry.subject?.name ?? "No subject") • \(Formatters.shortDate.string(from: entry.examDate))")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    if !entry.notes.isEmpty {
+                        Text(entry.notes)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(noteLineLimit)
+                    }
                 }
 
                 Spacer(minLength: 12)
 
-                StudyScorePill(percentage: entry.percentage)
+                VStack(alignment: .trailing, spacing: 10) {
+                    StudyScorePill(percentage: entry.percentage)
+
+                    Text("\(entry.scoredMarks, specifier: "%.1f") / \(entry.totalMarks, specifier: "%.1f")")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
             }
 
             StudyProgressBar(
                 progress: entry.percentage / 100,
                 tint: StudyTheme.scoreColor(for: entry.percentage)
             )
-
-            HStack(spacing: 10) {
-                Text("\(entry.scoredMarks, specifier: "%.1f") / \(entry.totalMarks, specifier: "%.1f")")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.secondary)
-
-                if !entry.notes.isEmpty {
-                    Text(entry.notes)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(noteLineLimit)
-                }
-            }
         }
     }
 }
@@ -543,9 +814,19 @@ struct StudyMistakeRowContent: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .top, spacing: 10) {
-                    Text(mistake.title)
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.primary)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            StudyMetaChip(title: mistake.subject?.name ?? "No subject", systemImage: "books.vertical")
+
+                            if let paperName = mistake.markEntry?.paperName {
+                                StudyMetaChip(title: paperName, systemImage: "link", tint: StudyTheme.warm)
+                            }
+                        }
+
+                        Text(mistake.title)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
 
                     Spacer(minLength: 8)
 
@@ -562,10 +843,6 @@ struct StudyMistakeRowContent: View {
                             }
                     }
                 }
-
-                Text(mistake.subject?.name ?? "No subject")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
 
                 Text(mistake.note)
                     .font(.subheadline)

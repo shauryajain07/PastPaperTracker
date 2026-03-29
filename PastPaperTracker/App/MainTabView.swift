@@ -23,5 +23,6 @@ struct MainTabView: View {
         .tint(StudyTheme.accent)
         .toolbarBackground(.visible, for: .tabBar)
         .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarColorScheme(.light, for: .tabBar)
     }
 }

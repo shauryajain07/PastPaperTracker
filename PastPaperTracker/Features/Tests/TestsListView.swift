@@ -3,7 +3,6 @@ import SwiftUI
 
 struct TestsListView: View {
     let ownerId: String
-    @Environment(\.colorScheme) private var colorScheme
 
     @Query private var subjects: [Subject]
     @Query private var markEntries: [MarkEntry]
@@ -60,10 +59,8 @@ struct TestsListView: View {
                         showingNewTest = true
                     } label: {
                         Image(systemName: "plus")
-                            .font(.system(size: 15, weight: .semibold))
-                            .padding(10)
-                            .background(.ultraThinMaterial, in: Circle())
                     }
+                    .buttonStyle(StudyToolbarIconButtonStyle())
                 }
             }
             .sheet(isPresented: $showingNewTest) {
@@ -96,23 +93,20 @@ struct TestsListView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("RESULTS")
-                    .font(.caption.weight(.semibold))
-                    .tracking(1.4)
-                    .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+            StudyPageHeader(
+                eyebrow: "RESULTS",
+                title: "Test history",
+                detail: filteredEntries.isEmpty
+                    ? "Your completed papers will collect here as a clean running log."
+                    : "Showing \(filteredEntries.count) result\(filteredEntries.count == 1 ? "" : "s") for \(filterLabel.lowercased())."
+            )
 
-                Text("Test history")
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-
-                Text(
-                    filteredEntries.isEmpty
-                        ? "Your completed papers will collect here as a clean running log."
-                        : "Showing \(filteredEntries.count) result\(filteredEntries.count == 1 ? "" : "s") for \(filterLabel.lowercased())."
-                )
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Button {
+                showingNewTest = true
+            } label: {
+                Label("Log New Test", systemImage: "plus.circle.fill")
             }
+            .buttonStyle(StudyPrimaryButtonStyle())
 
             LazyVGrid(
                 columns: [
@@ -186,24 +180,25 @@ struct TestsListView: View {
                 detail: "Each row keeps the score, timing, and notes visible at a glance."
             )
 
-            VStack(spacing: 0) {
-                ForEach(Array(filteredEntries.enumerated()), id: \.element.id) { index, entry in
+            LazyVStack(spacing: 14) {
+                ForEach(filteredEntries, id: \.id) { entry in
                     NavigationLink {
                         TestDetailView(entry: entry, ownerId: ownerId)
                     } label: {
-                        StudyTestRowContent(entry: entry)
-                            .padding(18)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(alignment: .center, spacing: 14) {
+                            StudyTestRowContent(entry: entry, noteLineLimit: 2)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.bold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .studyCard(padding: 18, tint: StudyTheme.scoreColor(for: entry.percentage))
                     }
                     .buttonStyle(.plain)
-
-                    if index < filteredEntries.count - 1 {
-                        Divider()
-                            .padding(.horizontal, 18)
-                    }
                 }
             }
-            .studyPanel(padding: 0)
         }
     }
 }

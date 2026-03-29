@@ -48,66 +48,135 @@ struct MistakeEditorView: View {
         let photoButtonTitle = storedPhotoPath == nil ? "Attach Photo" : "Replace Photo"
 
         NavigationStack {
-            Form {
-                Section("Mistake") {
-                    TextField("Title", text: $title)
-                    TextField("What happened?", text: $note, axis: .vertical)
-                        .lineLimit(6, reservesSpace: true)
-                    TextField("Marks lost (optional)", text: $marksLostText)
-                        .keyboardType(.decimalPad)
-                }
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    StudyPageHeader(
+                        eyebrow: existingMistake == nil ? "NEW MISTAKE" : "EDIT MISTAKE",
+                        title: existingMistake == nil ? "Capture a mistake" : "Refine this review note",
+                        detail: "Keep the explanation, evidence, and linked paper together so revision stays actionable."
+                    )
 
-                Section("Links") {
-                    Picker("Subject", selection: $selectedSubjectID) {
-                        Text("Select a subject").tag(Optional<UUID>.none)
-                        ForEach(subjects, id: \.id) { subject in
-                            Text(subject.name).tag(Optional(subject.id))
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Mistake",
+                            detail: "Write the shortest clear summary of what went wrong."
+                        )
+
+                        VStack(alignment: .leading, spacing: 18) {
+                            StudyFieldBlock(title: "Title") {
+                                TextField("Misread the question", text: $title)
+                                    .studyInputField()
+                            }
+
+                            StudyFieldBlock(title: "What happened?") {
+                                TextField("Describe the mistake and what to watch for next time.", text: $note, axis: .vertical)
+                                    .lineLimit(6, reservesSpace: true)
+                                    .studyInputField()
+                            }
+
+                            StudyFieldBlock(title: "Marks Lost", detail: "Optional") {
+                                TextField("4", text: $marksLostText)
+                                    .keyboardType(.decimalPad)
+                                    .studyInputField()
+                            }
                         }
+                        .studyPanel(padding: 20)
                     }
 
-                    Picker("Linked test", selection: $selectedMarkEntryID) {
-                        Text("None").tag(Optional<UUID>.none)
-                        ForEach(availableMarkEntries, id: \.id) { markEntry in
-                            Text(markEntry.paperName).tag(Optional(markEntry.id))
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Links",
+                            detail: "Connect this mistake to the subject and, when possible, the test it came from."
+                        )
+
+                        VStack(alignment: .leading, spacing: 18) {
+                            StudyFieldBlock(title: "Subject") {
+                                Picker("Subject", selection: $selectedSubjectID) {
+                                    Text("Select a subject").tag(Optional<UUID>.none)
+                                    ForEach(subjects, id: \.id) { subject in
+                                        Text(subject.name).tag(Optional(subject.id))
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .studyInputField()
+                            }
+
+                            StudyFieldBlock(title: "Linked Test") {
+                                Picker("Linked test", selection: $selectedMarkEntryID) {
+                                    Text("None").tag(Optional<UUID>.none)
+                                    ForEach(availableMarkEntries, id: \.id) { markEntry in
+                                        Text(markEntry.paperName).tag(Optional(markEntry.id))
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .studyInputField()
+                            }
+
+                            Button("Add Subject") {
+                                showingNewSubject = true
+                            }
+                            .buttonStyle(StudySecondaryButtonStyle())
                         }
+                        .studyPanel(padding: 20)
                     }
 
-                    Button("Add Subject") {
-                        showingNewSubject = true
-                    }
-                }
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Photo",
+                            detail: "Attach the question or your working when the visual context matters."
+                        )
 
-                Section("Photo") {
-                    PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                        Label(photoButtonTitle, systemImage: "photo.badge.plus")
-                    }
+                        VStack(alignment: .leading, spacing: 14) {
+                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                Label(photoButtonTitle, systemImage: "photo.badge.plus")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(StudySecondaryButtonStyle())
 
-                    if let storedPhotoPath {
-                        AttachmentThumbnailView(relativePath: storedPhotoPath)
-                        Button("Remove Photo", role: .destructive) {
-                            environment.photoStore.delete(relativePath: storedPhotoPath)
-                            self.storedPhotoPath = nil
+                            if let storedPhotoPath {
+                                AttachmentThumbnailView(relativePath: storedPhotoPath)
+
+                                Button(role: .destructive) {
+                                    environment.photoStore.delete(relativePath: storedPhotoPath)
+                                    self.storedPhotoPath = nil
+                                } label: {
+                                    Text("Remove Photo")
+                                        .foregroundStyle(StudyTheme.rose)
+                                }
+                                .buttonStyle(StudySecondaryButtonStyle())
+                            }
                         }
+                        .studyPanel(padding: 20)
                     }
-                }
 
-                if let errorMessage {
-                    Section("Error") {
+                    if let errorMessage {
                         Text(errorMessage)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(StudyTheme.rose)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16)
+                            .background {
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .fill(StudyTheme.rose.opacity(0.10))
+                            }
                     }
-                }
 
-                if existingMistake != nil {
-                    Section {
-                        Button("Delete Mistake", role: .destructive) {
+                    if existingMistake != nil {
+                        Button(role: .destructive) {
                             deleteMistake()
+                        } label: {
+                            Text("Delete Mistake")
+                                .foregroundStyle(StudyTheme.rose)
                         }
+                        .buttonStyle(StudySecondaryButtonStyle())
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 32)
             }
-            .scrollContentBackground(.hidden)
-            .background(Color.clear)
+            .studyScreenBackground()
             .navigationTitle(existingMistake == nil ? "New Mistake" : "Edit Mistake")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -133,7 +202,6 @@ struct MistakeEditorView: View {
                 await importSelectedPhoto()
             }
         }
-        .studyScreenBackground()
     }
 
     private var availableMarkEntries: [MarkEntry] {

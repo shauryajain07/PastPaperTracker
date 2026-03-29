@@ -39,104 +39,193 @@ struct TestEditorView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Paper") {
-                    TextField(
-                        "Year",
-                        text: Binding(
-                            get: { paperFields.year },
-                            set: { paperFields.year = digitsOnly($0, maxLength: 4) }
-                        )
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    StudyPageHeader(
+                        eyebrow: existingEntry == nil ? "NEW TEST" : "EDIT TEST",
+                        title: existingEntry == nil ? "Log a past paper" : "Refine this result",
+                        detail: "Capture the paper details, score, and context in a layout that stays easy to scan later."
                     )
-                    .keyboardType(.numberPad)
 
-                    Picker("Session", selection: Binding(
-                        get: { paperFields.session },
-                        set: { paperFields.session = $0 }
-                    )) {
-                        ForEach(PastPaperSession.allCases) { session in
-                            Text(session.rawValue).tag(session)
-                        }
-                    }
-
-                    TextField(
-                        "Paper Number",
-                        text: Binding(
-                            get: { paperFields.paperNumber },
-                            set: { paperFields.paperNumber = digitsOnly($0) }
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Paper",
+                            detail: "Standardize the paper name so your history stays consistent."
                         )
-                    )
-                    .keyboardType(.numberPad)
 
-                    TextField(
-                        "Timezone Number",
-                        text: Binding(
-                            get: { paperFields.timezoneNumber },
-                            set: { paperFields.timezoneNumber = digitsOnly($0) }
-                        )
-                    )
-                    .keyboardType(.numberPad)
+                        VStack(alignment: .leading, spacing: 18) {
+                            StudyFieldBlock(title: "Year") {
+                                TextField(
+                                    "2026",
+                                    text: Binding(
+                                        get: { paperFields.year },
+                                        set: { paperFields.year = digitsOnly($0, maxLength: 4) }
+                                    )
+                                )
+                                .keyboardType(.numberPad)
+                                .studyInputField()
+                            }
 
-                    DatePicker("Exam date", selection: $examDate, displayedComponents: .date)
-                }
+                            StudyFieldBlock(title: "Session") {
+                                Picker("Session", selection: Binding(
+                                    get: { paperFields.session },
+                                    set: { paperFields.session = $0 }
+                                )) {
+                                    ForEach(PastPaperSession.allCases) { session in
+                                        Text(session.rawValue).tag(session)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                            }
 
-                Section("Standardized Name") {
-                    Text(generatedPaperName)
-                        .font(.body.monospaced())
-                        .foregroundStyle(canBuildPaperName ? .primary : .secondary)
+                            HStack(alignment: .top, spacing: 12) {
+                                StudyFieldBlock(title: "Paper Number") {
+                                    TextField(
+                                        "12",
+                                        text: Binding(
+                                            get: { paperFields.paperNumber },
+                                            set: { paperFields.paperNumber = digitsOnly($0) }
+                                        )
+                                    )
+                                    .keyboardType(.numberPad)
+                                    .studyInputField()
+                                }
 
-                    Text("Format: [YEAR]-[M/N]-[Paper Number]-TZ[Timezone number]")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
+                                StudyFieldBlock(title: "Timezone") {
+                                    TextField(
+                                        "1",
+                                        text: Binding(
+                                            get: { paperFields.timezoneNumber },
+                                            set: { paperFields.timezoneNumber = digitsOnly($0) }
+                                        )
+                                    )
+                                    .keyboardType(.numberPad)
+                                    .studyInputField()
+                                }
+                            }
 
-                Section("Marks") {
-                    TextField("Scored marks", text: $scoredMarksText)
-                        .keyboardType(.decimalPad)
-                    TextField("Total marks", text: $totalMarksText)
-                        .keyboardType(.decimalPad)
-                }
-
-                Section("Subject") {
-                    if subjects.isEmpty {
-                        Text("Create a subject first to save a test result.")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Picker("Subject", selection: $selectedSubjectID) {
-                            Text("Select a subject").tag(Optional<UUID>.none)
-                            ForEach(subjects, id: \.id) { subject in
-                                Text(subject.name).tag(Optional(subject.id))
+                            StudyFieldBlock(title: "Exam Date") {
+                                DatePicker("Exam date", selection: $examDate, displayedComponents: .date)
+                                    .datePickerStyle(.compact)
+                                    .labelsHidden()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .studyInputField()
                             }
                         }
+                        .studyPanel(padding: 20)
                     }
 
-                    Button("Add Subject") {
-                        showingNewSubject = true
-                    }
-                }
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Standardized Name",
+                            detail: "This is the label that will appear in your result history and linked mistakes."
+                        )
 
-                Section("Notes") {
-                    TextField("Anything notable about this paper?", text: $notes, axis: .vertical)
-                        .lineLimit(4, reservesSpace: true)
-                }
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(generatedPaperName)
+                                .font(.body.monospaced())
+                                .foregroundStyle(canBuildPaperName ? .primary : .secondary)
 
-                if let errorMessage {
-                    Section("Error") {
-                        Text(errorMessage)
-                            .foregroundStyle(.red)
-                    }
-                }
-
-                if existingEntry != nil {
-                    Section {
-                        Button("Delete Test", role: .destructive) {
-                            deleteEntry()
+                            Text("Format: [YEAR]-[M/N]-[Paper Number]-TZ[Timezone number]")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
                         }
+                        .studyPanel(padding: 20)
+                    }
+
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Marks",
+                            detail: "Keep both values visible so the percentage remains easy to trust."
+                        )
+
+                        HStack(alignment: .top, spacing: 12) {
+                            StudyFieldBlock(title: "Scored") {
+                                TextField("52", text: $scoredMarksText)
+                                    .keyboardType(.decimalPad)
+                                    .studyInputField()
+                            }
+
+                            StudyFieldBlock(title: "Total") {
+                                TextField("75", text: $totalMarksText)
+                                    .keyboardType(.decimalPad)
+                                    .studyInputField()
+                            }
+                        }
+                        .studyPanel(padding: 20)
+                    }
+
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Subject",
+                            detail: "Attach the result to the subject it belongs to."
+                        )
+
+                        VStack(alignment: .leading, spacing: 14) {
+                            if subjects.isEmpty {
+                                Text("Create a subject first to save a test result.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                StudyFieldBlock(title: "Subject") {
+                                    Picker("Subject", selection: $selectedSubjectID) {
+                                        Text("Select a subject").tag(Optional<UUID>.none)
+                                        ForEach(subjects, id: \.id) { subject in
+                                            Text(subject.name).tag(Optional(subject.id))
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .studyInputField()
+                                }
+                            }
+
+                            Button("Add Subject") {
+                                showingNewSubject = true
+                            }
+                            .buttonStyle(StudySecondaryButtonStyle())
+                        }
+                        .studyPanel(padding: 20)
+                    }
+
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Notes",
+                            detail: "Capture anything useful for review, even if it is just one sentence."
+                        )
+
+                        TextField("Anything notable about this paper?", text: $notes, axis: .vertical)
+                            .lineLimit(4, reservesSpace: true)
+                            .studyInputField()
+                            .studyPanel(padding: 20)
+                    }
+
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .foregroundStyle(StudyTheme.rose)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16)
+                            .background {
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .fill(StudyTheme.rose.opacity(0.10))
+                            }
+                    }
+
+                    if existingEntry != nil {
+                        Button(role: .destructive) {
+                            deleteEntry()
+                        } label: {
+                            Text("Delete Test")
+                                .foregroundStyle(StudyTheme.rose)
+                        }
+                        .buttonStyle(StudySecondaryButtonStyle())
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 32)
             }
-            .scrollContentBackground(.hidden)
-            .background(Color.clear)
+            .studyScreenBackground()
             .navigationTitle(existingEntry == nil ? "New Test" : "Edit Test")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -159,7 +248,6 @@ struct TestEditorView: View {
                 }
             }
         }
-        .studyScreenBackground()
     }
 
     private var canSave: Bool {

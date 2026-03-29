@@ -11,20 +11,43 @@ struct SubjectEditorView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Subject") {
-                    TextField("Mathematics", text: $name)
-                }
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    StudyPageHeader(
+                        eyebrow: "NEW SUBJECT",
+                        title: "Create a subject",
+                        detail: "Add the subject once, then reuse it across tests and mistakes."
+                    )
 
-                if let errorMessage {
-                    Section("Error") {
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Subject",
+                            detail: "Choose the name you want to see across the app."
+                        )
+
+                        StudyFieldBlock(title: "Name") {
+                            TextField("Mathematics", text: $name)
+                                .studyInputField()
+                        }
+                        .studyPanel(padding: 20)
+                    }
+
+                    if let errorMessage {
                         Text(errorMessage)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(StudyTheme.rose)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16)
+                            .background {
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .fill(StudyTheme.rose.opacity(0.10))
+                            }
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 32)
             }
-            .scrollContentBackground(.hidden)
-            .background(Color.clear)
+            .studyScreenBackground()
             .navigationTitle("New Subject")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -42,7 +65,6 @@ struct SubjectEditorView: View {
                 }
             }
         }
-        .studyScreenBackground()
     }
 
     private func save() {

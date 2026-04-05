@@ -27,8 +27,19 @@ final class SubjectRepository {
     }
 
     @discardableResult
-    func create(ownerId: String, name: String) throws -> Subject {
-        let subject = Subject(ownerId: ownerId, name: name.trimmingCharacters(in: .whitespacesAndNewlines))
+    func create(ownerId: String, name: String, catalogKey: String? = nil) throws -> Subject {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedCatalogKey = normalizedKey(catalogKey) ?? GradeBoundarySubjectKey.canonicalize(trimmedName)
+
+        if let existing = try existingSubject(ownerId: ownerId, name: trimmedName, catalogKey: normalizedCatalogKey) {
+            return existing
+        }
+
+        let subject = Subject(
+            ownerId: ownerId,
+            name: trimmedName,
+            catalogKey: normalizedCatalogKey
+        )
         context.insert(subject)
         try save()
         return subject
@@ -36,6 +47,9 @@ final class SubjectRepository {
 
     func update(_ subject: Subject, name: String) throws {
         subject.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if subject.catalogKey?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+            subject.catalogKey = GradeBoundarySubjectKey.canonicalize(subject.name)
+        }
         subject.updatedAt = .now
         if subject.syncState != .pendingDelete {
             subject.syncState = .pendingUpload
@@ -82,6 +96,7 @@ final class SubjectRepository {
             guard existing.syncState != .pendingUpload || existing.updatedAt <= remote.updatedAt else { return }
             existing.ownerId = remote.ownerID
             existing.name = remote.name
+            existing.catalogKey = normalizedKey(remote.catalogKey) ?? GradeBoundarySubjectKey.canonicalize(remote.name)
             existing.createdAt = remote.createdAt
             existing.updatedAt = remote.updatedAt
             existing.syncState = .synced
@@ -90,6 +105,7 @@ final class SubjectRepository {
                 id: remote.id,
                 ownerId: remote.ownerID,
                 name: remote.name,
+                catalogKey: normalizedKey(remote.catalogKey) ?? GradeBoundarySubjectKey.canonicalize(remote.name),
                 createdAt: remote.createdAt,
                 updatedAt: remote.updatedAt,
                 syncState: .synced
@@ -117,5 +133,29 @@ final class SubjectRepository {
     private func save() throws {
         try context.save()
         didSave?()
+    }
+
+    private func existingSubject(ownerId: String, name: String, catalogKey: String?) throws -> Subject? {
+        let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedCatalogKey = normalizedKey(catalogKey)
+
+        let subjects = try fetchActive(ownerId: ownerId)
+        return subjects.first { subject in
+            if let normalizedCatalogKey,
+               subject.sharedCatalogKey == normalizedCatalogKey {
+                return true
+            }
+
+            return subject.name.compare(
+                normalizedName,
+                options: [.caseInsensitive, .diacriticInsensitive]
+            ) == .orderedSame
+        }
+    }
+
+    private func normalizedKey(_ rawValue: String?) -> String? {
+        guard let rawValue else { return nil }
+        let normalized = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        return normalized.isEmpty ? nil : normalized
     }
 }

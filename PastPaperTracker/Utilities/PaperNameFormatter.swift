@@ -61,4 +61,10 @@ enum PaperNameFormatter {
         let year = Calendar.current.component(.year, from: date)
         return StandardizedPaperNameFields(year: String(year))
     }
+
+    static func boundarySessionCode(for paperName: String) -> String? {
+        guard let fields = parse(paperName) else { return nil }
+        let yearSuffix = String(fields.year.suffix(2))
+        return GradeBoundarySessionCode.canonicalize("\(fields.session.rawValue)\(yearSuffix) TZ\(fields.timezoneNumber)")
+    }
 }

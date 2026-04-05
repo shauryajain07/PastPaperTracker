@@ -5,6 +5,7 @@ enum ModelFactory {
     static func makeContainer(inMemory: Bool = false) -> ModelContainer {
         let schema = Schema([
             Subject.self,
+            GradeBoundarySet.self,
             MarkEntry.self,
             MistakeEntry.self,
         ])

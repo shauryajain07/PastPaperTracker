@@ -79,8 +79,7 @@ struct DashboardView: View {
         }
 
         if let improvementFromPrevious {
-            let direction = improvementFromPrevious >= 0 ? "up" : "down"
-            return "Average performance is \(overallAverage.formatted(.number.precision(.fractionLength(0))))%, and your latest paper is \(direction) \(abs(improvementFromPrevious).formatted(.number.precision(.fractionLength(0)))) points from the previous one."
+            return "Average performance is \(overallAverage.formatted(.number.precision(.fractionLength(0))))%, and your latest paper is \(deltaNarrative(improvementFromPrevious)) from the previous one."
         }
 
         return "You have your first paper in place. Keep logging results to turn this into a usable trend."
@@ -147,11 +146,10 @@ struct DashboardView: View {
         }
 
         if let focusImprovementFromPrevious {
-            let direction = focusImprovementFromPrevious >= 0 ? "up" : "down"
-            return "\(focusLatestEntry.paperName) is \(direction) \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts from the previous paper."
+            return "\(scoreSummary(for: focusLatestEntry)) and \(deltaNarrative(focusImprovementFromPrevious, abbreviated: true)) from the previous paper."
         }
 
-        return "\(focusLatestEntry.paperName) is the first paper in this view."
+        return "\(scoreSummary(for: focusLatestEntry)) on \(Formatters.shortDate.string(from: focusLatestEntry.examDate))."
     }
 
     private var mistakeWidgetDetail: String {
@@ -176,7 +174,7 @@ struct DashboardView: View {
             DashboardWidgetMetric(
                 title: "Best Result",
                 value: focusBestEntry.map { "\($0.percentage.formatted(.number.precision(.fractionLength(0))))%" } ?? "--",
-                detail: focusBestEntry.map { "\($0.paperName) on \(Formatters.shortDate.string(from: $0.examDate))" }
+                detail: focusBestEntry.map { "\(scoreSummary(for: $0)) on \(Formatters.shortDate.string(from: $0.examDate))" }
                     ?? "Your strongest paper will surface here.",
                 systemImage: "rosette",
                 tint: StudyTheme.warm
@@ -269,11 +267,42 @@ struct DashboardView: View {
 
     private var chartSummaryMetrics: [DashboardGraphMetric] {
         [
-            DashboardGraphMetric(title: "Latest", value: chartLatestValue, tint: StudyTheme.accent),
-            DashboardGraphMetric(title: "Rolling Avg", value: rollingAverageValue, tint: StudyTheme.sky),
-            DashboardGraphMetric(title: "Best", value: bestVisibleValue, tint: StudyTheme.warm),
-            DashboardGraphMetric(title: "Papers", value: chartVolumeValue, tint: StudyTheme.accentDeep)
+            DashboardGraphMetric(
+                title: "Latest",
+                value: chartLatestValue,
+                detail: focusLatestEntry.map(scoreSummary(for:)) ?? "Most recent paper in this view",
+                tint: StudyTheme.accent
+            ),
+            DashboardGraphMetric(
+                title: "Rolling Avg",
+                value: rollingAverageValue,
+                detail: "Smoothed across the latest few papers",
+                tint: StudyTheme.sky
+            ),
+            DashboardGraphMetric(
+                title: "Best",
+                value: bestVisibleValue,
+                detail: focusBestEntry.map(scoreSummary(for:)) ?? "Top visible paper",
+                tint: StudyTheme.warm
+            ),
+            DashboardGraphMetric(
+                title: "Papers",
+                value: chartVolumeValue,
+                detail: "Results included in this subject lens",
+                tint: StudyTheme.accentDeep
+            )
         ]
+    }
+
+    private func deltaNarrative(_ delta: Double, abbreviated: Bool = false) -> String {
+        let direction = delta >= 0 ? "up" : "down"
+        let unit = abbreviated ? "pp" : "percentage points"
+        let amount = abs(delta).formatted(.number.precision(.fractionLength(0)))
+        return "\(direction) \(amount) \(unit)"
+    }
+
+    private func scoreSummary(for entry: MarkEntry) -> String {
+        "\(entry.paperName) · \(entry.scoredMarks.formatted(.number.precision(.fractionLength(0...1))))/\(entry.totalMarks.formatted(.number.precision(.fractionLength(0...1))))"
     }
 
     var body: some View {
@@ -642,8 +671,8 @@ struct DashboardView: View {
                 if let focusImprovementFromPrevious {
                     Text(
                         focusImprovementFromPrevious >= 0
-                            ? "Up \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
-                            : "Down \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pts"
+                            ? "Up \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pp"
+                            : "Down \(abs(focusImprovementFromPrevious).formatted(.number.precision(.fractionLength(0)))) pp"
                     )
                 } else {
                     Text("Waiting for more data")
@@ -770,6 +799,7 @@ private struct DashboardWidgetMetric: Identifiable {
 private struct DashboardGraphMetric: Identifiable {
     let title: String
     let value: String
+    let detail: String
     let tint: Color
 
     var id: String { title }
@@ -809,6 +839,11 @@ private struct DashboardGraphMetricCard: View {
             Text(metric.value)
                 .font(StudyTypography.bodyMedium())
                 .foregroundStyle(.primary)
+
+            Text(metric.detail)
+                .font(StudyTypography.caption())
+                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+                .lineLimit(2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 14)
@@ -913,7 +948,7 @@ private struct DashboardSubjectComparisonCard: View {
         guard let delta = comparison.deltaFromPrevious else { return "New" }
         if delta == 0 { return "Flat" }
         let prefix = delta >= 0 ? "+" : "-"
-        return "\(prefix)\(abs(delta).formatted(.number.precision(.fractionLength(0))))"
+        return "\(prefix)\(abs(delta).formatted(.number.precision(.fractionLength(0)))) pp"
     }
 
     private func metricColumn(title: String, value: String) -> some View {

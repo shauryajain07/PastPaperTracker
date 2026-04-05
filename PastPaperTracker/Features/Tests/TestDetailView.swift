@@ -9,6 +9,10 @@ struct TestDetailView: View {
     @State private var showingEditSheet = false
     @State private var showingNewMistakeSheet = false
 
+    private var gradeMatch: GradeBoundaryMatch? {
+        GradeBoundaryResolver.resolvedBoundary(for: entry)
+    }
+
     init(entry: MarkEntry, ownerId: String) {
         self.entry = entry
         self.ownerId = ownerId
@@ -65,7 +69,8 @@ struct TestDetailView: View {
         VStack(alignment: .leading, spacing: 20) {
             StudyPageHeader(
                 eyebrow: entry.subject?.name ?? "No subject",
-                title: "\(entry.percentage.formatted(.number.precision(.fractionLength(0))))%",
+                title: gradeMatch.map { "\(entry.percentage.formatted(.number.precision(.fractionLength(0))))% · IB \($0.grade)" }
+                    ?? "\(entry.percentage.formatted(.number.precision(.fractionLength(0))))%",
                 detail: "Taken on \(Formatters.shortDate.string(from: entry.examDate))"
             )
 
@@ -86,11 +91,25 @@ struct TestDetailView: View {
                     value: "\(entry.scoredMarks.formatted(.number.precision(.fractionLength(1)))) / \(entry.totalMarks.formatted(.number.precision(.fractionLength(1))))",
                     systemImage: "checkmark.circle"
                 )
+                if let gradeMatch {
+                    StudyStatChip(
+                        title: "IB Grade",
+                        value: "\(gradeMatch.grade)",
+                        systemImage: "graduationcap"
+                    )
+                }
                 StudyStatChip(
                     title: "Linked Mistakes",
                     value: "\(mistakes.count)",
                     systemImage: "link"
                 )
+                if let gradeMatch {
+                    StudyStatChip(
+                        title: "Boundary Set",
+                        value: gradeMatch.set.kind == .sessionImport ? gradeMatch.set.title : "Default",
+                        systemImage: "chart.bar.doc.horizontal"
+                    )
+                }
             }
         }
         .studyPanel(padding: 24)

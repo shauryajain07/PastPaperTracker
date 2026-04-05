@@ -11,13 +11,19 @@ final class AppEnvironment: ObservableObject {
     let photoStore = PhotoStore()
     let localIdentityStore = LocalIdentityStore()
     let revisionReminderStore = RevisionReminderStore()
+    let deepSeekAPIKeyStore = DeepSeekAPIKeyStore()
     let subjectRepository: SubjectRepository
+    let gradeBoundaryRepository: GradeBoundaryRepository
     let markRepository: MarkEntryRepository
     let mistakeRepository: MistakeEntryRepository
+    let gradeBoundaryImportService: GradeBoundaryImportService
+    let sharedGradeBoundaryCatalogService: SharedGradeBoundaryCatalogService
+    let sharedSubjectCatalogService: SharedSubjectCatalogService
     private let widgetSnapshotCoordinator: WidgetSnapshotCoordinator
     private(set) lazy var syncEngine = SyncEngine(
         authService: authService,
         subjectRepository: subjectRepository,
+        gradeBoundaryRepository: gradeBoundaryRepository,
         markRepository: markRepository,
         mistakeRepository: mistakeRepository,
         photoStore: photoStore,
@@ -32,11 +38,16 @@ final class AppEnvironment: ObservableObject {
         self.config = SupabaseConfig.loadFromBundle()
         self.authService = SupabaseAuthService(config: config)
         let subjectRepository = SubjectRepository(context: context)
+        let gradeBoundaryRepository = GradeBoundaryRepository(context: context)
         let markRepository = MarkEntryRepository(context: context)
         let mistakeRepository = MistakeEntryRepository(context: context)
         self.subjectRepository = subjectRepository
+        self.gradeBoundaryRepository = gradeBoundaryRepository
         self.markRepository = markRepository
         self.mistakeRepository = mistakeRepository
+        self.gradeBoundaryImportService = GradeBoundaryImportService(apiKeyStore: deepSeekAPIKeyStore)
+        self.sharedGradeBoundaryCatalogService = SharedGradeBoundaryCatalogService(authService: authService)
+        self.sharedSubjectCatalogService = SharedSubjectCatalogService(authService: authService)
         let widgetSnapshotCoordinator = WidgetSnapshotCoordinator(
             subjectRepository: subjectRepository,
             markRepository: markRepository,
@@ -45,6 +56,9 @@ final class AppEnvironment: ObservableObject {
         self.widgetSnapshotCoordinator = widgetSnapshotCoordinator
 
         subjectRepository.didSave = { [weak self] in
+            self?.refreshWidgetSnapshot()
+        }
+        gradeBoundaryRepository.didSave = { [weak self] in
             self?.refreshWidgetSnapshot()
         }
         markRepository.didSave = { [weak self] in
@@ -124,6 +138,7 @@ final class AppEnvironment: ObservableObject {
             let session = try await action()
             if let previousGuestID, previousGuestID != session.id {
                 try subjectRepository.migrateOwnership(from: previousGuestID, to: session.id)
+                try gradeBoundaryRepository.migrateOwnership(from: previousGuestID, to: session.id)
                 try markRepository.migrateOwnership(from: previousGuestID, to: session.id)
                 try mistakeRepository.migrateOwnership(from: previousGuestID, to: session.id)
             }

@@ -206,6 +206,32 @@ struct TestEditorView: View {
                     }
                     .studyRevealOnAppear(index: 3)
 
+                    if let predictedGradeMatch {
+                        VStack(alignment: .leading, spacing: 14) {
+                            StudySectionHeader(
+                                title: "IB Grade Preview",
+                                detail: "This preview uses the saved boundaries for the selected subject and the current paper session."
+                            )
+
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Predicted grade: IB \(predictedGradeMatch.grade)")
+                                    .font(StudyTypography.sectionTitle())
+                                    .foregroundStyle(.primary)
+
+                                Text(
+                                    predictedGradeMatch.set.kind == .sessionImport
+                                        ? "Matched with \(predictedGradeMatch.set.title) at \(predictedGradeMatch.thresholdPercentage.formatted(.number.precision(.fractionLength(0))))%."
+                                        : "Using the subject default boundary at \(predictedGradeMatch.thresholdPercentage.formatted(.number.precision(.fractionLength(0))))%."
+                                )
+                                .font(StudyTypography.body())
+                                .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .studyPanel(padding: 20)
+                        }
+                        .studyRevealOnAppear(index: 4)
+                    }
+
                     if let errorMessage {
                         Text(errorMessage)
                             .foregroundStyle(StudyTheme.rose)
@@ -292,6 +318,25 @@ struct TestEditorView: View {
         }
 
         return PaperNameFormatter.build(from: paperFields)
+    }
+
+    private var predictedGradeMatch: GradeBoundaryMatch? {
+        guard
+            let selectedSubjectID,
+            let subject = subjects.first(where: { $0.id == selectedSubjectID }),
+            let scoredMarks = Double(scoredMarksText),
+            let totalMarks = Double(totalMarksText),
+            totalMarks > 0,
+            canBuildPaperName
+        else {
+            return nil
+        }
+
+        return GradeBoundaryResolver.resolvedBoundary(
+            percentage: (scoredMarks / totalMarks) * 100,
+            paperName: generatedPaperName,
+            subject: subject
+        )
     }
 
     private func save() {

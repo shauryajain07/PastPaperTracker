@@ -698,14 +698,19 @@ struct StudyMetaChip: View {
 
             Text(title)
                 .lineLimit(1)
+                .minimumScaleFactor(0.82)
         }
-        .font(StudyTypography.caption())
-        .foregroundStyle(colorScheme == .dark ? tint.opacity(0.96) : tint.opacity(0.92))
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
+        .font(StudyTypography.caption().weight(.semibold))
+        .foregroundStyle(colorScheme == .dark ? tint.opacity(0.98) : tint.opacity(0.98))
+        .padding(.horizontal, 11)
+        .padding(.vertical, 8)
         .background {
             Capsule(style: .continuous)
-                .fill(tint.opacity(colorScheme == .dark ? 0.18 : 0.12))
+                .fill(tint.opacity(colorScheme == .dark ? 0.18 : 0.18))
+                .overlay {
+                    Capsule(style: .continuous)
+                        .stroke(tint.opacity(colorScheme == .dark ? 0.26 : 0.34), lineWidth: 1)
+                }
         }
     }
 }
@@ -1064,13 +1069,32 @@ struct StudyTestRowContent: View {
     let entry: MarkEntry
     var noteLineLimit = 1
 
+    private var gradeMatch: GradeBoundaryMatch? {
+        GradeBoundaryResolver.resolvedBoundary(for: entry)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 14) {
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 8) {
-                        StudyMetaChip(title: entry.subject?.name ?? "No subject", systemImage: "books.vertical")
-                        StudyMetaChip(title: Formatters.shortDate.string(from: entry.examDate), systemImage: "calendar", tint: StudyTheme.warm)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 8) {
+                            metaChips
+                        }
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 8) {
+                                StudyMetaChip(title: entry.subject?.name ?? "No subject", systemImage: "books.vertical")
+                                StudyMetaChip(title: scoreTag, systemImage: "target", tint: StudyTheme.accent)
+                            }
+
+                            HStack(spacing: 8) {
+                                StudyMetaChip(title: Formatters.shortDate.string(from: entry.examDate), systemImage: "calendar", tint: StudyTheme.warm)
+                                if let gradeMatch {
+                                    StudyMetaChip(title: "IB \(gradeMatch.grade)", systemImage: "graduationcap", tint: StudyTheme.accentDeep)
+                                }
+                            }
+                        }
                     }
 
                     Text(entry.paperName)
@@ -1090,9 +1114,17 @@ struct StudyTestRowContent: View {
                 VStack(alignment: .trailing, spacing: 12) {
                     StudyScorePill(percentage: entry.percentage)
 
-                    Text("\(entry.scoredMarks, specifier: "%.1f") / \(entry.totalMarks, specifier: "%.1f")")
-                        .font(StudyTypography.caption())
-                        .foregroundStyle(StudyTheme.tertiaryText(for: colorScheme))
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("\(entry.scoredMarks, specifier: "%.1f") / \(entry.totalMarks, specifier: "%.1f")")
+                            .font(StudyTypography.caption())
+                            .foregroundStyle(StudyTheme.tertiaryText(for: colorScheme))
+
+                        if let gradeMatch {
+                            Text(gradeMatch.set.kind == .sessionImport ? gradeMatch.set.title : "Default boundaries")
+                                .font(StudyTypography.caption())
+                                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+                        }
+                    }
                 }
             }
 
@@ -1102,6 +1134,20 @@ struct StudyTestRowContent: View {
             )
         }
         .studyReveal(delay: 0.05, offset: 12, scale: 0.985)
+    }
+
+    @ViewBuilder
+    private var metaChips: some View {
+        StudyMetaChip(title: entry.subject?.name ?? "No subject", systemImage: "books.vertical")
+        StudyMetaChip(title: scoreTag, systemImage: "target", tint: StudyTheme.accent)
+        StudyMetaChip(title: Formatters.shortDate.string(from: entry.examDate), systemImage: "calendar", tint: StudyTheme.warm)
+        if let gradeMatch {
+            StudyMetaChip(title: "IB \(gradeMatch.grade)", systemImage: "graduationcap", tint: StudyTheme.accentDeep)
+        }
+    }
+
+    private var scoreTag: String {
+        "\(entry.scoredMarks.formatted(.number.precision(.fractionLength(0...1))))/\(entry.totalMarks.formatted(.number.precision(.fractionLength(0...1))))"
     }
 }
 

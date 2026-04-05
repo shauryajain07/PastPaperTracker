@@ -12,6 +12,7 @@ struct SettingsView: View {
     @EnvironmentObject private var sessionStore: SessionStore
     @EnvironmentObject private var syncMonitor: SyncMonitor
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppAppearance.storageKey) private var appAppearanceRawValue = AppAppearance.system.rawValue
 
     init(showsDismissButton: Bool = true) {
         self.showsDismissButton = showsDismissButton
@@ -161,6 +162,84 @@ struct SettingsView: View {
                     }
                     .studyRevealOnAppear(index: 4)
 
+                    VStack(alignment: .leading, spacing: 14) {
+                        StudySectionHeader(
+                            title: "Appearance",
+                            detail: "Choose whether the app follows the system theme or stays in light or dark mode."
+                        )
+
+                        VStack(alignment: .leading, spacing: 18) {
+                            StudyFieldBlock(title: "Theme") {
+                                Picker(
+                                    "Theme",
+                                    selection: Binding(
+                                        get: { selectedAppearance },
+                                        set: { appearance in
+                                            StudyFeedback.selection()
+                                            appAppearanceRawValue = appearance.rawValue
+                                        }
+                                    )
+                                ) {
+                                    ForEach(AppAppearance.allCases) { appearance in
+                                        Text(appearance.title).tag(appearance)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                            }
+
+                            Text("Light mode is useful when you want cleaner screenshots or brighter revision sessions.")
+                                .font(.footnote)
+                                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+                        }
+                        .studyPanel(padding: 20)
+                    }
+                    .studyRevealOnAppear(index: 5)
+
+                    if let ownerId = sessionStore.currentSession?.id {
+                        VStack(alignment: .leading, spacing: 14) {
+                            StudySectionHeader(
+                                title: "Grade Boundaries",
+                                detail: "Store default IB boundaries per subject and import session-specific rows from screenshots."
+                            )
+
+                            NavigationLink {
+                                GradeBoundarySettingsView(ownerId: ownerId)
+                            } label: {
+                                HStack(spacing: 14) {
+                                    Image(systemName: "chart.bar.doc.horizontal")
+                                        .font(.title3)
+                                        .foregroundStyle(StudyTheme.accentDeep)
+                                        .frame(width: 42, height: 42)
+                                        .background(
+                                            Circle()
+                                                .fill(StudyTheme.accentSoft.opacity(colorScheme == .dark ? 0.28 : 0.60))
+                                        )
+
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text("Manage Grade Boundaries")
+                                            .font(StudyTypography.sectionTitle())
+                                            .foregroundStyle(.primary)
+
+                                        Text("Add manual IB defaults or import M25 TZ1-style session rows from a screenshot.")
+                                            .font(StudyTypography.caption())
+                                            .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+                                            .multilineTextAlignment(.leading)
+                                    }
+
+                                    Spacer(minLength: 12)
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.footnote.weight(.bold))
+                                        .foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .studyPanel(padding: 20)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .studyRevealOnAppear(index: 6)
+                    }
+
                     if let error = syncMonitor.lastErrorMessage {
                         Text(error)
                             .foregroundStyle(StudyTheme.rose)
@@ -184,7 +263,7 @@ struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                                 .studyPanel(padding: 20)
                         }
-                        .studyRevealOnAppear(index: 5)
+                        .studyRevealOnAppear(index: 7)
                     }
 
                     Button(role: .destructive) {
@@ -273,5 +352,9 @@ struct SettingsView: View {
         @unknown default:
             return "Unknown"
         }
+    }
+
+    private var selectedAppearance: AppAppearance {
+        AppAppearance(rawValue: appAppearanceRawValue) ?? .system
     }
 }

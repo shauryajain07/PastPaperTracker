@@ -38,6 +38,14 @@ struct DashboardView: View {
         return trendPoints.filter { $0.subjectFilterKey == effectiveSubjectFilter }
     }
 
+    private var focusTrendPointsChronological: [TrendPoint] {
+        filteredTrendPoints.sorted { $0.date < $1.date }
+    }
+
+    private var focusRollingTrendPoints: [DashboardRollingPoint] {
+        rollingAveragePoints(from: focusTrendPointsChronological)
+    }
+
     private var subjectAverages: [SubjectAverage] {
         AnalyticsCalculator.subjectAverages(from: markEntries)
     }
@@ -193,25 +201,37 @@ struct DashboardView: View {
     }
 
     private var focusChartDetail: String {
-        if let selectedSubject {
-            return "Widgets and graph are locked to \(selectedSubject.name), so you can inspect one subject cleanly."
+        if selectedSubject != nil {
+            return "Raw papers stay visible as dots, while the line smooths the last few results so the direction is easier to trust."
         }
 
-        return "Keep all subjects visible together or tap a chip to isolate one subject at a time."
+        return "This view shows your full score flow as one calm trend instead of layering every subject on top of each other."
     }
 
-    private var showSubjectLegend: Bool {
-        effectiveSubjectFilter == "all" && Set(filteredTrendPoints.map(\.subjectName)).count > 1
-    }
-
-    private var visibleSubjectNames: [String] {
-        Array(Set(filteredTrendPoints.map(\.subjectName))).sorted()
-    }
-
-    private var visibleSubjectColors: [Color] {
-        visibleSubjectNames.enumerated().map { index, _ in
-            StudyTheme.chartPalette[index % StudyTheme.chartPalette.count]
+    private var focusTrendDomain: ClosedRange<Date>? {
+        guard
+            let first = focusTrendPointsChronological.first?.date,
+            let last = focusTrendPointsChronological.last?.date
+        else {
+            return nil
         }
+
+        if first == last {
+            let adjustedLast = Calendar.current.date(byAdding: .day, value: 1, to: last) ?? last
+            return first...adjustedLast
+        }
+
+        return first...last
+    }
+
+    private var rollingAverageValue: String {
+        guard let rollingAverage = focusRollingTrendPoints.last?.percentage else { return "--" }
+        return "\(rollingAverage.formatted(.number.precision(.fractionLength(0))))%"
+    }
+
+    private var bestVisibleValue: String {
+        guard let best = focusBestEntry else { return "--" }
+        return "\(best.percentage.formatted(.number.precision(.fractionLength(0))))%"
     }
 
     private var chartLatestValue: String {
@@ -219,36 +239,49 @@ struct DashboardView: View {
         return "\(latest.percentage.formatted(.number.precision(.fractionLength(0))))%"
     }
 
-    private var chartRangeValue: String {
-        guard
-            let lowest = focusLowestEntry?.percentage,
-            let highest = focusBestEntry?.percentage
-        else { return "--" }
-
-        return "\(lowest.formatted(.number.precision(.fractionLength(0))))-\(highest.formatted(.number.precision(.fractionLength(0))))%"
-    }
-
-    private var chartVolumeTitle: String {
-        showSubjectLegend ? "Subjects" : "Papers"
-    }
-
     private var chartVolumeValue: String {
-        showSubjectLegend ? "\(visibleSubjectNames.count)" : "\(focusMarkEntries.count)"
+        "\(focusMarkEntries.count)"
+    }
+
+    private var subjectComparisonCards: [DashboardSubjectComparison] {
+        let groupedPoints = Dictionary(grouping: trendPoints, by: \.subjectName)
+
+        return subjectAverages.enumerated().map { index, average in
+            let points = (groupedPoints[average.subjectName] ?? []).sorted { $0.date < $1.date }
+            let latest = points.last?.percentage
+            let previous = points.dropLast().last?.percentage
+            let delta: Double? = {
+                guard let latest, let previous else { return nil as Double? }
+                return latest - previous
+            }()
+
+            return DashboardSubjectComparison(
+                subjectName: average.subjectName,
+                averagePercentage: average.averagePercentage,
+                latestPercentage: latest,
+                deltaFromPrevious: delta,
+                entryCount: points.count,
+                tint: StudyTheme.chartPalette[index % StudyTheme.chartPalette.count],
+                points: points
+            )
+        }
     }
 
     private var chartSummaryMetrics: [DashboardGraphMetric] {
         [
             DashboardGraphMetric(title: "Latest", value: chartLatestValue, tint: StudyTheme.accent),
-            DashboardGraphMetric(title: "Range", value: chartRangeValue, tint: StudyTheme.warm),
-            DashboardGraphMetric(title: chartVolumeTitle, value: chartVolumeValue, tint: StudyTheme.accentDeep)
+            DashboardGraphMetric(title: "Rolling Avg", value: rollingAverageValue, tint: StudyTheme.sky),
+            DashboardGraphMetric(title: "Best", value: bestVisibleValue, tint: StudyTheme.warm),
+            DashboardGraphMetric(title: "Papers", value: chartVolumeValue, tint: StudyTheme.accentDeep)
         ]
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     heroSection
+                        .studyRevealOnAppear()
 
                     if markEntries.isEmpty {
                         StudyEmptyState(
@@ -259,24 +292,24 @@ struct DashboardView: View {
                         .studyPanel(padding: 28)
                     } else {
                         subjectFocusSection
+                            .studyRevealOnAppear(index: 1)
                         averagesSection
+                            .studyRevealOnAppear(index: 2)
                     }
 
                     recentTestsSection
+                        .studyRevealOnAppear(index: 3)
                     recentMistakesSection
+                        .studyRevealOnAppear(index: 4)
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 32)
+                .padding(.top, 20)
+                .padding(.bottom, 24)
+                .animation(StudyMotion.spring, value: effectiveSubjectFilter)
             }
             .studyScreenBackground()
-            .navigationTitle("Dashboard")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    SettingsToolbarButton()
-                }
-            }
+            .studyTopFraming(18)
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingNewTestSheet) {
                 TestEditorView(ownerId: ownerId)
             }
@@ -289,13 +322,53 @@ struct DashboardView: View {
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(alignment: .top, spacing: 16) {
-                StudyBrandMark(size: 62)
+                StudyBrandMark(size: 60)
 
                 StudyPageHeader(
                     eyebrow: "PAST PAPER TRACKER",
                     title: "Revision snapshot",
                     detail: dashboardMessage
                 )
+            }
+
+            VStack(alignment: .leading, spacing: 18) {
+                HStack(alignment: .lastTextBaseline) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Average performance")
+                            .font(StudyTypography.body())
+                            .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+
+                        Text(markEntries.isEmpty ? "--" : "\(overallAverage.formatted(.number.precision(.fractionLength(0))))%")
+                            .font(.custom("Mulish-ExtraBold", size: 44, relativeTo: .largeTitle))
+                            .foregroundStyle(.primary)
+                            .contentTransition(.numericText())
+                    }
+
+                    Spacer(minLength: 12)
+
+                    VStack(alignment: .trailing, spacing: 8) {
+                        metricPill(title: "Tests", value: "\(markEntries.count)")
+                        metricPill(title: "Mistakes", value: "\(mistakes.count)")
+                    }
+                }
+
+                StudyProgressBar(
+                    progress: overallAverage / 100,
+                    tint: StudyTheme.accent
+                )
+
+                Text(bestSubjectSummary)
+                    .font(StudyTypography.bodyMedium())
+                    .foregroundStyle(.primary)
+            }
+            .padding(24)
+            .background {
+                RoundedRectangle(cornerRadius: StudyRadius.lg, style: .continuous)
+                    .fill(StudyTheme.heroFill(for: colorScheme))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: StudyRadius.lg, style: .continuous)
+                            .stroke(.white.opacity(colorScheme == .dark ? 0.08 : 0.55), lineWidth: 1)
+                    }
             }
 
             LazyVGrid(
@@ -321,14 +394,15 @@ struct DashboardView: View {
                     systemImage: "doc.text.magnifyingglass"
                 )
                 StudyStatChip(
-                    title: "Mistake Load",
-                    value: totalMarksLost > 0 ? "\(totalMarksLost.formatted(.number.precision(.fractionLength(0)))) marks" : "\(mistakes.count) items",
-                    systemImage: "exclamationmark.bubble"
+                    title: "Marks Lost",
+                    value: totalMarksLost > 0 ? "\(totalMarksLost.formatted(.number.precision(.fractionLength(0))))" : "--",
+                    systemImage: "arrow.down.circle"
                 )
             }
 
             HStack(spacing: 12) {
                 Button {
+                    StudyFeedback.impact(.medium)
                     showingNewTestSheet = true
                 } label: {
                     Label("Log Test", systemImage: "plus.circle.fill")
@@ -336,6 +410,7 @@ struct DashboardView: View {
                 .buttonStyle(StudyPrimaryButtonStyle())
 
                 Button {
+                    StudyFeedback.impact(.light)
                     showingNewMistakeSheet = true
                 } label: {
                     Label("Add Mistake", systemImage: "exclamationmark.bubble")
@@ -343,14 +418,29 @@ struct DashboardView: View {
                 .buttonStyle(StudySecondaryButtonStyle())
             }
         }
-        .studyPanel(padding: 24)
+    }
+
+    private func metricPill(title: String, value: String) -> some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            Text(title.uppercased())
+                .font(StudyTypography.caption())
+                .tracking(1.2)
+                .foregroundStyle(StudyTheme.tertiaryText(for: colorScheme))
+
+            Text(value)
+                .font(StudyTypography.bodyMedium())
+                .foregroundStyle(.primary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(.white.opacity(colorScheme == .dark ? 0.08 : 0.6), in: Capsule(style: .continuous))
     }
 
     private var subjectFocusSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             StudySectionHeader(
-                title: "Subject Lens",
-                detail: "Filter the dashboard widgets and graph for each subject."
+                title: "Subject lens",
+                detail: "Lock the dashboard to one subject when you want a calmer, cleaner read."
             )
 
             subjectFilterSection
@@ -363,21 +453,18 @@ struct DashboardView: View {
                 )
                 .padding(.top, 8)
             } else {
-                LazyVGrid(
-                    columns: [
-                        GridItem(.flexible(), spacing: 12),
-                        GridItem(.flexible(), spacing: 12)
-                    ],
-                    spacing: 12
-                ) {
-                    ForEach(focusWidgets) { widget in
-                        StudyDashboardWidget(
-                            title: widget.title,
-                            value: widget.value,
-                            detail: widget.detail,
-                            systemImage: widget.systemImage,
-                            tint: widget.tint
-                        )
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 14) {
+                        ForEach(focusWidgets) { widget in
+                            StudyDashboardWidget(
+                                title: widget.title,
+                                value: widget.value,
+                                detail: widget.detail,
+                                systemImage: widget.systemImage,
+                                tint: widget.tint
+                            )
+                            .frame(width: 220)
+                        }
                     }
                 }
 
@@ -386,14 +473,18 @@ struct DashboardView: View {
                 }
             }
         }
-        .studyPanel()
+        .studyPanel(padding: 22)
     }
 
     private var subjectFilterSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 Button {
-                    selectedSubjectFilter = "all"
+                    guard selectedSubjectFilter != "all" else { return }
+                    StudyFeedback.selection()
+                    withAnimation(StudyMotion.spring) {
+                        selectedSubjectFilter = "all"
+                    }
                 } label: {
                     StudyFilterChip(title: "All Subjects", isSelected: effectiveSubjectFilter == "all")
                 }
@@ -403,7 +494,11 @@ struct DashboardView: View {
                     let subjectFilterKey = subject.id.uuidString.lowercased()
 
                     Button {
-                        selectedSubjectFilter = subjectFilterKey
+                        guard selectedSubjectFilter != subjectFilterKey else { return }
+                        StudyFeedback.selection()
+                        withAnimation(StudyMotion.spring) {
+                            selectedSubjectFilter = subjectFilterKey
+                        }
                     } label: {
                         StudyFilterChip(
                             title: subject.name,
@@ -414,32 +509,56 @@ struct DashboardView: View {
                 }
             }
             .padding(.vertical, 2)
+            .padding(.trailing, 8)
         }
     }
 
-    private var multiSubjectTrendChart: some View {
-        Chart(filteredTrendPoints) { point in
-            LineMark(
-                x: .value("Date", point.date),
-                y: .value("Percentage", point.percentage),
-                series: .value("Subject", point.subjectName)
-            )
-            .interpolationMethod(.catmullRom)
-            .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-            .foregroundStyle(by: .value("Subject", point.subjectName))
+    private var performanceTrendChart: some View {
+        Chart {
+            if let domain = focusTrendDomain {
+                RectangleMark(
+                    xStart: .value("Start", domain.lowerBound),
+                    xEnd: .value("End", domain.upperBound),
+                    yStart: .value("Target Start", 70),
+                    yEnd: .value("Target End", 80)
+                )
+                .foregroundStyle(StudyTheme.accent.opacity(colorScheme == .dark ? 0.12 : 0.14))
+            }
 
-            PointMark(
-                x: .value("Date", point.date),
-                y: .value("Percentage", point.percentage)
-            )
-            .symbolSize(36)
-            .foregroundStyle(by: .value("Subject", point.subjectName))
+            ForEach(focusTrendPointsChronological) { point in
+                PointMark(
+                    x: .value("Date", point.date),
+                    y: .value("Percentage", point.percentage)
+                )
+                .symbolSize(effectiveSubjectFilter == "all" ? 22 : 34)
+                .foregroundStyle(
+                    effectiveSubjectFilter == "all"
+                        ? StudyTheme.sky.opacity(0.45)
+                        : StudyTheme.accentDeep.opacity(0.65)
+                )
+            }
+
+            ForEach(focusRollingTrendPoints) { point in
+                LineMark(
+                    x: .value("Date", point.date),
+                    y: .value("Percentage", point.percentage)
+                )
+                .interpolationMethod(.catmullRom)
+                .lineStyle(StrokeStyle(lineWidth: 3.5, lineCap: .round, lineJoin: .round))
+                .foregroundStyle(StudyTheme.accent)
+            }
+
+            if effectiveSubjectFilter != "all" {
+                RuleMark(y: .value("Average", focusAverage))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 6]))
+                    .foregroundStyle(StudyTheme.warm.opacity(0.72))
+                    .annotation(position: .topTrailing) {
+                        Text("Avg \(focusAverage.formatted(.number.precision(.fractionLength(0))))%")
+                            .font(StudyTypography.caption())
+                            .foregroundStyle(StudyTheme.warm)
+                    }
+            }
         }
-        .chartForegroundStyleScale(
-            domain: visibleSubjectNames,
-            range: visibleSubjectColors
-        )
-        .chartLegend(.hidden)
         .chartYScale(domain: 0...100)
         .chartYAxis {
             AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) {
@@ -450,7 +569,7 @@ struct DashboardView: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: min(filteredTrendPoints.count, 4))) {
+            AxisMarks(values: .automatic(desiredCount: min(focusTrendPointsChronological.count, 4))) {
                 AxisGridLine().foregroundStyle(.clear)
                 AxisTick().foregroundStyle(.clear)
                 AxisValueLabel(format: .dateTime.month(.abbreviated).day())
@@ -474,109 +593,19 @@ struct DashboardView: View {
         .frame(height: 280)
     }
 
-    private var singleSubjectTrendChart: some View {
-        Chart(filteredTrendPoints) { point in
-            RuleMark(y: .value("Goal", 70))
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [6, 6]))
-                .foregroundStyle(StudyTheme.warm.opacity(0.45))
-                .annotation(position: .topLeading) {
-                    Text("Goal")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(StudyTheme.warm)
-                }
-
-            RuleMark(y: .value("Average", focusAverage))
-                .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [3, 4]))
-                .foregroundStyle(StudyTheme.accentDeep.opacity(0.55))
-                .annotation(position: .topTrailing) {
-                    Text("Avg \(focusAverage.formatted(.number.precision(.fractionLength(0))))%")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(StudyTheme.accentDeep)
-                }
-
-            AreaMark(
-                x: .value("Date", point.date),
-                y: .value("Percentage", point.percentage)
-            )
-            .interpolationMethod(.catmullRom)
-            .foregroundStyle(
-                LinearGradient(
-                    colors: [
-                        StudyTheme.accent.opacity(0.30),
-                        StudyTheme.accent.opacity(0.03)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-
-            LineMark(
-                x: .value("Date", point.date),
-                y: .value("Percentage", point.percentage)
-            )
-            .interpolationMethod(.catmullRom)
-            .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-            .foregroundStyle(StudyTheme.accent)
-
-            PointMark(
-                x: .value("Date", point.date),
-                y: .value("Percentage", point.percentage)
-            )
-            .symbolSize(40)
-            .foregroundStyle(StudyTheme.accent)
-        }
-        .chartForegroundStyleScale(
-            domain: visibleSubjectNames,
-            range: visibleSubjectColors
-        )
-        .chartYScale(domain: 0...100)
-        .chartYAxis {
-            AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) {
-                AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [3, 4]))
-                    .foregroundStyle(.primary.opacity(0.08))
-                AxisValueLabel()
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: min(filteredTrendPoints.count, 4))) {
-                AxisGridLine().foregroundStyle(.clear)
-                AxisTick().foregroundStyle(.clear)
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .chartPlotStyle { plotArea in
-            plotArea
-                .background(
-                    LinearGradient(
-                        colors: [
-                            StudyTheme.accent.opacity(0.08),
-                            .primary.opacity(0.03)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        }
-        .frame(height: 280)
-    }
-
     private var performanceGraphSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Performance Graph")
-                    .font(.headline.weight(.semibold))
+                Text("Performance graph")
+                    .font(StudyTypography.sectionTitle())
 
                 Text(focusChartDetail)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(StudyTypography.body())
+                    .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
             }
 
             LazyVGrid(
                 columns: [
-                    GridItem(.flexible(), spacing: 10),
                     GridItem(.flexible(), spacing: 10),
                     GridItem(.flexible(), spacing: 10)
                 ],
@@ -588,30 +617,14 @@ struct DashboardView: View {
             }
 
             VStack(alignment: .leading, spacing: 14) {
-                Group {
-                    if effectiveSubjectFilter == "all" {
-                        multiSubjectTrendChart
-                    } else {
-                        singleSubjectTrendChart
-                    }
-                }
-
-                if showSubjectLegend {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(Array(zip(visibleSubjectNames, visibleSubjectColors)), id: \.0) { subjectName, color in
-                                DashboardLegendChip(title: subjectName, color: color)
-                            }
-                        }
-                    }
-                }
+                performanceTrendChart
             }
             .padding(16)
             .background {
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(StudyTheme.panelFill(for: colorScheme))
+                RoundedRectangle(cornerRadius: StudyRadius.md, style: .continuous)
+                    .fill(StudyTheme.surfaceSecondary(for: colorScheme))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 26, style: .continuous)
+                        RoundedRectangle(cornerRadius: StudyRadius.md, style: .continuous)
                             .stroke(StudyTheme.panelBorder(for: colorScheme), lineWidth: 1)
                     }
             }
@@ -637,45 +650,28 @@ struct DashboardView: View {
                 }
             }
             .font(.footnote.weight(.medium))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
         }
     }
 
     private var averagesSection: some View {
-        let averages = subjectAverages
-
         return VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
-                title: "Subject Averages",
-                detail: "Use this to see where your baseline is already strong."
+                title: "Subject radar",
+                detail: "A compact compare view keeps the main chart focused and still shows where each subject is heading."
             )
 
-            VStack(spacing: 16) {
-                ForEach(Array(averages.enumerated()), id: \.element.id) { index, average in
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Subject \(index + 1)")
-                                    .font(.caption.weight(.semibold))
-                                    .tracking(1.1)
-                                    .foregroundStyle(.secondary)
-
-                                Text(average.subjectName)
-                                    .font(.headline.weight(.semibold))
-                            }
-
-                            Spacer()
-
-                            StudyScorePill(percentage: average.averagePercentage)
-                        }
-
-                        StudyProgressBar(
-                            progress: average.averagePercentage / 100,
-                            tint: StudyTheme.scoreColor(for: average.averagePercentage)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 14) {
+                    ForEach(subjectComparisonCards) { comparison in
+                        DashboardSubjectComparisonCard(
+                            comparison: comparison,
+                            isSelected: selectedSubject?.name == comparison.subjectName
                         )
+                        .frame(width: 284)
                     }
-                    .studyCard(tint: StudyTheme.scoreColor(for: average.averagePercentage))
                 }
+                .padding(.vertical, 2)
             }
         }
     }
@@ -685,8 +681,8 @@ struct DashboardView: View {
 
         return VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
-                title: "Recent Tests",
-                detail: "Jump back into your latest papers without digging."
+                title: "Recent tests",
+                detail: "Your latest papers stay close so you can re-open context fast."
             )
 
             if recentEntries.isEmpty {
@@ -713,7 +709,7 @@ struct DashboardView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .studyCard(padding: 18, tint: StudyTheme.scoreColor(for: entry.percentage))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(StudyCardButtonStyle(tint: StudyTheme.scoreColor(for: entry.percentage)))
                     }
                 }
             }
@@ -725,8 +721,8 @@ struct DashboardView: View {
 
         return VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
-                title: "Recent Mistakes",
-                detail: "Keep the errors that still cost marks within easy reach."
+                title: "Recent mistakes",
+                detail: "The errors that still matter most should stay visible and lightweight."
             )
 
             if recentMistakes.isEmpty {
@@ -753,7 +749,7 @@ struct DashboardView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .studyCard(padding: 18, tint: StudyTheme.rose)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(StudyCardButtonStyle(tint: StudyTheme.rose))
                     }
                 }
             }
@@ -779,6 +775,25 @@ private struct DashboardGraphMetric: Identifiable {
     var id: String { title }
 }
 
+private struct DashboardRollingPoint: Identifiable {
+    let date: Date
+    let percentage: Double
+
+    var id: Date { date }
+}
+
+private struct DashboardSubjectComparison: Identifiable {
+    let subjectName: String
+    let averagePercentage: Double
+    let latestPercentage: Double?
+    let deltaFromPrevious: Double?
+    let entryCount: Int
+    let tint: Color
+    let points: [TrendPoint]
+
+    var id: String { subjectName }
+}
+
 private struct DashboardGraphMetricCard: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -787,13 +802,12 @@ private struct DashboardGraphMetricCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(metric.title.uppercased())
-                .font(.caption2.weight(.semibold))
+                .font(StudyTypography.caption())
                 .tracking(1.1)
-                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+                .foregroundStyle(StudyTheme.tertiaryText(for: colorScheme))
 
             Text(metric.value)
-                .font(.headline.weight(.bold))
-                .fontDesign(.rounded)
+                .font(StudyTypography.bodyMedium())
                 .foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -806,27 +820,181 @@ private struct DashboardGraphMetricCard: View {
     }
 }
 
-private struct DashboardLegendChip: View {
+private struct DashboardSubjectComparisonCard: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    let title: String
-    let color: Color
+    let comparison: DashboardSubjectComparison
+    let isSelected: Bool
 
     var body: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(comparison.subjectName)
+                        .font(StudyTypography.sectionTitle())
+                        .foregroundStyle(.primary)
 
-            Text(title)
-                .font(.footnote.weight(.medium))
-                .foregroundStyle(.secondary)
+                    Text(comparisonSummary)
+                        .font(StudyTypography.caption())
+                        .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
+                }
+
+                Spacer(minLength: 12)
+
+                StudyScorePill(percentage: comparison.averagePercentage)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("Trend")
+                        .font(StudyTypography.caption())
+                        .tracking(1.1)
+                        .foregroundStyle(StudyTheme.tertiaryText(for: colorScheme))
+
+                    Spacer()
+
+                    Text(latestValue)
+                        .font(StudyTypography.bodyMedium())
+                        .foregroundStyle(.primary)
+                }
+
+                DashboardSparklineChart(
+                    points: comparison.points,
+                    tint: comparison.tint
+                )
+                .frame(height: 56)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
+            .background {
+                RoundedRectangle(cornerRadius: StudyRadius.sm, style: .continuous)
+                    .fill(comparison.tint.opacity(colorScheme == .dark ? 0.10 : 0.08))
+            }
+
+            HStack(spacing: 12) {
+                metricColumn(title: "Trend", value: trendValue)
+                metricColumn(title: "Latest", value: latestValue)
+                metricColumn(title: "Papers", value: "\(comparison.entryCount)")
+            }
+            .padding(.top, 2)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(18)
         .background(
-            colorScheme == .dark ? .white.opacity(0.08) : .white.opacity(0.62),
-            in: Capsule(style: .continuous)
+            RoundedRectangle(cornerRadius: StudyRadius.md, style: .continuous)
+                .fill(StudyTheme.surfacePrimary(for: colorScheme))
+                .overlay {
+                    RoundedRectangle(cornerRadius: StudyRadius.md, style: .continuous)
+                        .fill(comparison.tint.opacity(colorScheme == .dark ? 0.08 : 0.06))
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: StudyRadius.md, style: .continuous)
+                        .stroke(
+                            isSelected ? comparison.tint.opacity(0.55) : StudyTheme.panelBorder(for: colorScheme),
+                            lineWidth: 1
+                        )
+                }
+        )
+    }
+
+    private var comparisonSummary: String {
+        if isSelected {
+            return "Current focus"
+        }
+
+        return "\(comparison.entryCount) papers tracked"
+    }
+
+    private var latestValue: String {
+        guard let latest = comparison.latestPercentage else { return "--" }
+        return "\(latest.formatted(.number.precision(.fractionLength(0))))%"
+    }
+
+    private var trendValue: String {
+        guard let delta = comparison.deltaFromPrevious else { return "New" }
+        if delta == 0 { return "Flat" }
+        let prefix = delta >= 0 ? "+" : "-"
+        return "\(prefix)\(abs(delta).formatted(.number.precision(.fractionLength(0))))"
+    }
+
+    private func metricColumn(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title.uppercased())
+                .font(StudyTypography.caption())
+                .tracking(1.1)
+                .foregroundStyle(StudyTheme.tertiaryText(for: colorScheme))
+
+            Text(value)
+                .font(StudyTypography.bodyMedium())
+                .foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct DashboardSparklineChart: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let points: [TrendPoint]
+    let tint: Color
+
+    private var domain: ClosedRange<Date>? {
+        guard let first = points.first?.date, let last = points.last?.date else { return nil }
+        if first == last {
+            let end = Calendar.current.date(byAdding: .day, value: 1, to: last) ?? last
+            return first...end
+        }
+        let start = Calendar.current.date(byAdding: .day, value: -2, to: first) ?? first
+        let end = Calendar.current.date(byAdding: .day, value: 2, to: last) ?? last
+        return start...end
+    }
+
+    var body: some View {
+        Chart(points) { point in
+            RuleMark(y: .value("Mid", 50))
+                .foregroundStyle(.clear)
+
+            LineMark(
+                x: .value("Date", point.date),
+                y: .value("Percentage", point.percentage)
+            )
+            .interpolationMethod(.catmullRom)
+            .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
+            .foregroundStyle(tint)
+
+            if let latest = points.last, latest.id == point.id {
+                PointMark(
+                    x: .value("Date", point.date),
+                    y: .value("Percentage", point.percentage)
+                )
+                .symbolSize(28)
+                .foregroundStyle(tint)
+            }
+        }
+        .chartYScale(domain: 0...100)
+        .chartXScale(domain: domain ?? Date()...Date())
+        .chartXAxis(.hidden)
+        .chartYAxis(.hidden)
+        .chartPlotStyle { plotArea in
+            plotArea
+                .background(.clear)
+        }
+    }
+}
+
+private func rollingAveragePoints(
+    from points: [TrendPoint],
+    windowSize: Int = 3
+) -> [DashboardRollingPoint] {
+    guard !points.isEmpty else { return [] }
+
+    return points.indices.map { index in
+        let start = max(0, index - (windowSize - 1))
+        let slice = points[start...index]
+        let average = slice.map(\.percentage).reduce(0, +) / Double(slice.count)
+
+        return DashboardRollingPoint(
+            date: points[index].date,
+            percentage: average
         )
     }
 }

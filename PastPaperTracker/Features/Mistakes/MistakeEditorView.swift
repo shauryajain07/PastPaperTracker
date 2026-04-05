@@ -55,6 +55,7 @@ struct MistakeEditorView: View {
                         title: existingMistake == nil ? "Capture a mistake" : "Refine this review note",
                         detail: "Keep the explanation, evidence, and linked paper together so revision stays actionable."
                     )
+                    .studyRevealOnAppear()
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -82,6 +83,7 @@ struct MistakeEditorView: View {
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 1)
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -115,12 +117,14 @@ struct MistakeEditorView: View {
                             }
 
                             Button("Add Subject") {
+                                StudyFeedback.impact(.light)
                                 showingNewSubject = true
                             }
                             .buttonStyle(StudySecondaryButtonStyle())
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 2)
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -139,6 +143,7 @@ struct MistakeEditorView: View {
                                 AttachmentThumbnailView(relativePath: storedPhotoPath)
 
                                 Button(role: .destructive) {
+                                    StudyFeedback.impact(.rigid)
                                     environment.photoStore.delete(relativePath: storedPhotoPath)
                                     self.storedPhotoPath = nil
                                 } label: {
@@ -150,6 +155,7 @@ struct MistakeEditorView: View {
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 3)
 
                     if let errorMessage {
                         Text(errorMessage)
@@ -164,6 +170,7 @@ struct MistakeEditorView: View {
 
                     if existingMistake != nil {
                         Button(role: .destructive) {
+                            StudyFeedback.impact(.rigid)
                             deleteMistake()
                         } label: {
                             Text("Delete Mistake")
@@ -182,16 +189,22 @@ struct MistakeEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
+                        StudyFeedback.impact(.light)
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
+                        StudyFeedback.impact(.medium)
                         save()
                     }
                     .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedSubjectID == nil)
                 }
+            }
+            .onChange(of: errorMessage) { oldValue, newValue in
+                guard oldValue != newValue, newValue != nil else { return }
+                StudyFeedback.notification(.error)
             }
             .sheet(isPresented: $showingNewSubject) {
                 SubjectEditorView(ownerId: ownerId) { subject in
@@ -214,6 +227,7 @@ struct MistakeEditorView: View {
         do {
             if let data = try await selectedPhotoItem.loadTransferable(type: Data.self) {
                 storedPhotoPath = try environment.photoStore.saveImageData(data, for: draftPhotoID)
+                StudyFeedback.notification(.success)
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -257,6 +271,7 @@ struct MistakeEditorView: View {
             Task {
                 await environment.triggerSync()
             }
+            StudyFeedback.notification(.success)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription
@@ -273,6 +288,7 @@ struct MistakeEditorView: View {
             Task {
                 await environment.triggerSync()
             }
+            StudyFeedback.notification(.success)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription

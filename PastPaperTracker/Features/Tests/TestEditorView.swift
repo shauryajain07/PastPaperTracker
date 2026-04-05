@@ -16,6 +16,7 @@ struct TestEditorView: View {
     @State private var selectedSubjectID: UUID?
     @State private var showingNewSubject = false
     @State private var errorMessage: String?
+    @State private var showingSaveConfirmation = false
 
     init(ownerId: String, existingEntry: MarkEntry? = nil) {
         self.ownerId = ownerId
@@ -46,6 +47,7 @@ struct TestEditorView: View {
                         title: existingEntry == nil ? "Log a past paper" : "Refine this result",
                         detail: "Capture the paper details, score, and context in a layout that stays easy to scan later."
                     )
+                    .studyRevealOnAppear()
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -114,6 +116,7 @@ struct TestEditorView: View {
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 1)
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -181,12 +184,14 @@ struct TestEditorView: View {
                             }
 
                             Button("Add Subject") {
+                                StudyFeedback.impact(.light)
                                 showingNewSubject = true
                             }
                             .buttonStyle(StudySecondaryButtonStyle())
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 2)
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -199,6 +204,7 @@ struct TestEditorView: View {
                             .studyInputField()
                             .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 3)
 
                     if let errorMessage {
                         Text(errorMessage)
@@ -213,6 +219,7 @@ struct TestEditorView: View {
 
                     if existingEntry != nil {
                         Button(role: .destructive) {
+                            StudyFeedback.impact(.rigid)
                             deleteEntry()
                         } label: {
                             Text("Delete Test")
@@ -226,21 +233,37 @@ struct TestEditorView: View {
                 .padding(.bottom, 32)
             }
             .studyScreenBackground()
+            .overlay {
+                if showingSaveConfirmation {
+                    StudyConfirmationHUD(
+                        title: existingEntry == nil ? "Paper Saved" : "Paper Updated",
+                        systemImage: "checkmark"
+                    )
+                    .transition(.scale(scale: 0.92).combined(with: .opacity))
+                }
+            }
+            .animation(StudyMotion.standard, value: showingSaveConfirmation)
             .navigationTitle(existingEntry == nil ? "New Test" : "Edit Test")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
+                        StudyFeedback.impact(.light)
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
+                        StudyFeedback.impact(.medium)
                         save()
                     }
                     .disabled(!canSave)
                 }
+            }
+            .onChange(of: errorMessage) { oldValue, newValue in
+                guard oldValue != newValue, newValue != nil else { return }
+                StudyFeedback.notification(.error)
             }
             .sheet(isPresented: $showingNewSubject) {
                 SubjectEditorView(ownerId: ownerId) { subject in
@@ -312,7 +335,7 @@ struct TestEditorView: View {
             Task {
                 await environment.triggerSync()
             }
-            dismiss()
+            showSaveConfirmation()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -332,9 +355,21 @@ struct TestEditorView: View {
             Task {
                 await environment.triggerSync()
             }
+            StudyFeedback.notification(.success)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func showSaveConfirmation() {
+        StudyFeedback.notification(.success)
+        showingSaveConfirmation = true
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(900))
+            dismiss()
         }
     }
 }

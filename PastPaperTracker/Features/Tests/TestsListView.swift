@@ -4,6 +4,7 @@ import SwiftUI
 struct TestsListView: View {
     let ownerId: String
 
+    @Environment(\.colorScheme) private var colorScheme
     @Query private var subjects: [Subject]
     @Query private var markEntries: [MarkEntry]
     @State private var selectedSubjectFilter = "all"
@@ -24,12 +25,14 @@ struct TestsListView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     heroSection
+                        .studyRevealOnAppear()
 
                     if !subjects.isEmpty {
                         filterSection
+                            .studyRevealOnAppear(index: 1)
                     }
 
                     if filteredEntries.isEmpty {
@@ -43,26 +46,17 @@ struct TestsListView: View {
                         .studyPanel(padding: 28)
                     } else {
                         resultsSection
+                            .studyRevealOnAppear(index: 2)
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 32)
+                .padding(.top, 20)
+                .padding(.bottom, 24)
+                .animation(StudyMotion.spring, value: selectedSubjectFilter)
             }
             .studyScreenBackground()
-            .navigationTitle("Tests")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    SettingsToolbarButton()
-                    Button {
-                        showingNewTest = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .buttonStyle(StudyToolbarIconButtonStyle())
-                }
-            }
+            .studyTopFraming(18)
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingNewTest) {
                 TestEditorView(ownerId: ownerId)
             }
@@ -83,6 +77,15 @@ struct TestsListView: View {
         filteredEntries.map(\.percentage).max() ?? 0
     }
 
+    private var latestEntry: MarkEntry? {
+        filteredEntries.first
+    }
+
+    private var improvementFromPrevious: Double? {
+        guard filteredEntries.count > 1 else { return nil }
+        return filteredEntries[0].percentage - filteredEntries[1].percentage
+    }
+
     private var filterLabel: String {
         if selectedSubjectFilter == "all" {
             return "All subjects"
@@ -91,22 +94,46 @@ struct TestsListView: View {
         return subjects.first { $0.id.uuidString.lowercased() == selectedSubjectFilter }?.name ?? "Selected subject"
     }
 
+    private var heroSummary: String {
+        if filteredEntries.isEmpty {
+            return "Your completed papers will collect here in one clean, scannable timeline."
+        }
+
+        return "Showing \(filteredEntries.count) result\(filteredEntries.count == 1 ? "" : "s") for \(filterLabel.lowercased())."
+    }
+
+    private var momentumSummary: String {
+        guard let improvementFromPrevious else {
+            return "Add another paper to measure your current pace."
+        }
+
+        if improvementFromPrevious == 0 {
+            return "Performance is holding steady across the last two papers."
+        }
+
+        let direction = improvementFromPrevious > 0 ? "up" : "down"
+        return "Your latest paper is \(direction) \(abs(improvementFromPrevious).formatted(.number.precision(.fractionLength(0)))) points from the one before it."
+    }
+
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 20) {
             StudyPageHeader(
-                eyebrow: "RESULTS",
+                eyebrow: "RESULTS LIBRARY",
                 title: "Test history",
-                detail: filteredEntries.isEmpty
-                    ? "Your completed papers will collect here as a clean running log."
-                    : "Showing \(filteredEntries.count) result\(filteredEntries.count == 1 ? "" : "s") for \(filterLabel.lowercased())."
+                detail: heroSummary
             )
 
             Button {
+                StudyFeedback.impact(.medium)
                 showingNewTest = true
             } label: {
                 Label("Log New Test", systemImage: "plus.circle.fill")
             }
             .buttonStyle(StudyPrimaryButtonStyle())
+
+            Text(momentumSummary)
+                .font(StudyTypography.body())
+                .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
 
             LazyVGrid(
                 columns: [
@@ -131,9 +158,9 @@ struct TestsListView: View {
                     systemImage: "rosette"
                 )
                 StudyStatChip(
-                    title: "Subjects",
-                    value: "\(subjects.count)",
-                    systemImage: "books.vertical"
+                    title: "Latest",
+                    value: latestEntry.map { $0.paperName } ?? "--",
+                    systemImage: "clock"
                 )
             }
         }
@@ -144,13 +171,17 @@ struct TestsListView: View {
         VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
                 title: "Filter",
-                detail: "Switch views without losing your place in the result stream."
+                detail: "Switch subjects without losing your place in the result stream."
             )
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     Button {
-                        selectedSubjectFilter = "all"
+                        guard selectedSubjectFilter != "all" else { return }
+                        StudyFeedback.selection()
+                        withAnimation(StudyMotion.spring) {
+                            selectedSubjectFilter = "all"
+                        }
                     } label: {
                         StudyFilterChip(title: "All Subjects", isSelected: selectedSubjectFilter == "all")
                     }
@@ -158,7 +189,12 @@ struct TestsListView: View {
 
                     ForEach(subjects, id: \.id) { subject in
                         Button {
-                            selectedSubjectFilter = subject.id.uuidString.lowercased()
+                            let nextFilter = subject.id.uuidString.lowercased()
+                            guard selectedSubjectFilter != nextFilter else { return }
+                            StudyFeedback.selection()
+                            withAnimation(StudyMotion.spring) {
+                                selectedSubjectFilter = nextFilter
+                            }
                         } label: {
                             StudyFilterChip(
                                 title: subject.name,
@@ -177,7 +213,7 @@ struct TestsListView: View {
         VStack(alignment: .leading, spacing: 12) {
             StudySectionHeader(
                 title: "Results",
-                detail: "Each row keeps the score, timing, and notes visible at a glance."
+                detail: "Each card keeps score, date, and context visible at a glance."
             )
 
             LazyVStack(spacing: 14) {
@@ -196,7 +232,7 @@ struct TestsListView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .studyCard(padding: 18, tint: StudyTheme.scoreColor(for: entry.percentage))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(StudyCardButtonStyle(tint: StudyTheme.scoreColor(for: entry.percentage)))
                 }
             }
         }

@@ -28,12 +28,15 @@ struct TestDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 heroSection
+                    .studyRevealOnAppear()
 
                 if !entry.notes.isEmpty {
                     notesSection
+                        .studyRevealOnAppear(index: 1)
                 }
 
                 linkedMistakesSection
+                    .studyRevealOnAppear(index: 2)
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
@@ -45,6 +48,7 @@ struct TestDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Edit") {
+                    StudyFeedback.impact(.light)
                     showingEditSheet = true
                 }
             }
@@ -128,7 +132,7 @@ struct TestDetailView: View {
                                 .padding(18)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(StudyCardButtonStyle(tint: StudyTheme.rose))
 
                         if index < mistakes.count - 1 {
                             Divider()
@@ -141,6 +145,7 @@ struct TestDetailView: View {
                     .padding(.horizontal, 18)
 
                 Button {
+                    StudyFeedback.impact(.medium)
                     showingNewMistakeSheet = true
                 } label: {
                     Text("Add Linked Mistake")

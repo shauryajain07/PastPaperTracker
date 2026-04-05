@@ -21,15 +21,22 @@ struct AuthView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
-                    VStack(alignment: .leading, spacing: 18) {
-                        StudyBrandMark(size: 110)
+                    VStack(alignment: .leading, spacing: 20) {
+                        StudyBrandMark(size: 96)
 
                         StudyPageHeader(
                             eyebrow: "PAST PAPER TRACKER",
                             title: headerTitle,
                             detail: headerDetail
                         )
+
+                        HStack(spacing: 10) {
+                            authFeatureChip("Sync", systemImage: "arrow.triangle.2.circlepath", tint: StudyTheme.sky)
+                            authFeatureChip("Revision", systemImage: "sparkles", tint: StudyTheme.accent)
+                            authFeatureChip("Photos", systemImage: "photo", tint: StudyTheme.warm)
+                        }
                     }
+                    .studyRevealOnAppear()
 
                     VStack(alignment: .leading, spacing: 18) {
                         Picker("Mode", selection: $mode) {
@@ -53,6 +60,7 @@ struct AuthView: View {
                         }
 
                         Button {
+                            StudyFeedback.impact(.light)
                             Task {
                                 await submit()
                             }
@@ -63,27 +71,28 @@ struct AuthView: View {
                         .disabled(isWorking || email.isEmpty || (mode != .reset && password.isEmpty))
 
                         Text(modeHelperText)
-                            .font(.footnote)
+                            .font(StudyTypography.body())
                             .foregroundStyle(StudyTheme.mutedText(for: colorScheme))
 
                         if let message = sessionStore.lastErrorMessage {
                             Text(message)
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(message.localizedCaseInsensitiveContains("sent") ? StudyTheme.accent : StudyTheme.rose)
+                                .font(StudyTypography.bodyMedium())
+                                .foregroundStyle(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(16)
                                 .background {
-                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    RoundedRectangle(cornerRadius: StudyRadius.sm, style: .continuous)
                                         .fill(
                                             (message.localizedCaseInsensitiveContains("sent")
                                                 ? StudyTheme.accent
                                                 : StudyTheme.rose
-                                            ).opacity(0.10)
+                                            ).opacity(0.14)
                                         )
                                 }
                         }
                     }
                     .studyPanel(padding: 24)
+                    .studyRevealOnAppear(index: 1)
 
                     if !environment.authService.isConfigured {
                         VStack(alignment: .leading, spacing: 14) {
@@ -93,32 +102,64 @@ struct AuthView: View {
                             )
 
                             Button("Continue Offline") {
+                                StudyFeedback.impact(.medium)
                                 environment.continueOffline()
                             }
                             .buttonStyle(StudySecondaryButtonStyle())
                         }
                         .studyPanel(padding: 24)
+                        .studyRevealOnAppear(index: 2)
                     }
                 }
                 .frame(maxWidth: 560, alignment: .leading)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal, 20)
-                .padding(.top, 28)
+                .padding(.top, 24)
                 .padding(.bottom, 24)
+                .animation(StudyMotion.spring, value: mode)
             }
             .studyScreenBackground()
-            .navigationBarTitleDisplayMode(.inline)
+            .studyTopFraming(18)
+            .toolbar(.hidden, for: .navigationBar)
+            .onChange(of: mode) { _, _ in
+                StudyFeedback.selection()
+            }
+            .onChange(of: sessionStore.lastErrorMessage) { oldValue, newValue in
+                guard oldValue != newValue, newValue != nil else { return }
+                if newValue?.localizedCaseInsensitiveContains("sent") == true {
+                    StudyFeedback.notification(.success)
+                } else {
+                    StudyFeedback.notification(.error)
+                }
+            }
+        }
+    }
+
+    private func authFeatureChip(_ title: String, systemImage: String, tint: Color) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.system(size: 12, weight: .semibold))
+
+            Text(title)
+                .font(StudyTypography.caption())
+        }
+        .foregroundStyle(tint)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background {
+            Capsule(style: .continuous)
+                .fill(tint.opacity(colorScheme == .dark ? 0.18 : 0.12))
         }
     }
 
     private var headerTitle: String {
         switch mode {
         case .signIn:
-            return "A cleaner way to track every paper."
+            return "Track every paper with more clarity."
         case .signUp:
-            return "Set up your revision workspace."
+            return "Set up a calmer study workspace."
         case .reset:
-            return "Get back into your account."
+            return "Get back into your revision flow."
         }
     }
 

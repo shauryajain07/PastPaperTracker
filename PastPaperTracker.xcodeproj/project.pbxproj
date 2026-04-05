@@ -10,12 +10,14 @@
 		04FCF0B9F242FA70C11FA97F /* SyncMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F7E4BEE5B523E8FF7DF45A /* SyncMonitor.swift */; };
 		0D58B687332DDDAE98B5F544 /* MistakesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB275CA535FAAB9CA0598F3C /* MistakesListView.swift */; };
 		0EF2759FF5A034C1E7BE8EE6 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67B1BAA569224536DA850B88 /* RootView.swift */; };
+		0FAA9D22A86B5DBD237C16A6 /* Mulish-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D0E305F296F5B11BE35F2BB5 /* Mulish-ExtraBold.ttf */; };
 		116394CAEDC4B7B69B555B6A /* MistakeEntryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12F025561F8EB286AD22422 /* MistakeEntryRepository.swift */; };
 		1792B4BF4EB3747D0D1E296F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB67BDEC41C3F888A562C4A /* SettingsView.swift */; };
 		197D9F458FF8AC6437B6985F /* LocalIdentityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93DB052778CEFF3D6F1545D9 /* LocalIdentityStore.swift */; };
 		25C4103212B1A89051A4A8A0 /* SubjectEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D68D40CD47465DACBA60488C /* SubjectEditorView.swift */; };
 		27F7B5CED0BBE557C8122D5D /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60CE5DD3121294DC7595FF50 /* AuthService.swift */; };
 		36C10897028CE4063D2202C0 /* MistakeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A78A442DA0DD0D10FB284B1 /* MistakeEntry.swift */; };
+		3C4B6EF917804BF209EAC953 /* Mulish-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB64D16F3823B906DA5F454F /* Mulish-Regular.ttf */; };
 		3EF8705F46AB529451364ACD /* MistakeEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4085867F69FBC39E7205A7C9 /* MistakeEditorView.swift */; };
 		40ACEBFE9B96EEF319E38771 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F8A1F2362010207BF080E3 /* SupabaseConfig.swift */; };
 		42DE854CEC94AEF4A5F2311D /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862EA190A59B8C798DE58D85 /* WidgetSnapshot.swift */; };
@@ -36,6 +38,7 @@
 		7911C00E4D31A85955ACC4A0 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2127F017F29C9066AAEB5333 /* SessionStore.swift */; };
 		79E02E24E7E4CCE102B1B954 /* ISO8601.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3487BCBB148162CF2918B71 /* ISO8601.swift */; };
 		7D46105367326FF0C101011D /* SupabaseConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 579815657DD54F8B4D283CC9 /* SupabaseConfig.plist */; };
+		7F3E93BCC2DD89059A63AD59 /* Mulish-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7B540D7332300D5274B5DA97 /* Mulish-Bold.ttf */; };
 		838F92DE4195E39E08891B56 /* SyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EB5EC35C786BC8D7741C9B /* SyncState.swift */; };
 		8B9F2456F3E4886418F37E84 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BC25AFD8C1669E82713F98 /* DashboardView.swift */; };
 		8D632908DBEEDA091A48E14C /* AppUserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC796C75EEAC80D5441324A /* AppUserSession.swift */; };
@@ -50,6 +53,7 @@
 		AA0A4B56C1ADF54FF46A34CF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23EDF15166DF728568FC1D23 /* AppEnvironment.swift */; };
 		AE9D0E6A3D9B68116C1661CA /* brand-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = E5A9E9F29586E0DC039E24BA /* brand-logo.png */; };
 		B1F86BACCD65C08948286055 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 854B3C04506C56059F2F6573 /* Assets.xcassets */; };
+		B88358A0293E4133278A0E58 /* Mulish-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 33DB4B117C2D61547ACBF4B7 /* Mulish-SemiBold.ttf */; };
 		BDAFE6B4F8AE152208332885 /* AnalyticsCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF70F9DB2B9FA41A9888411 /* AnalyticsCalculatorTests.swift */; };
 		C61EE252E7CD4F37D84F9EBC /* PastPaperTrackerWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8FB1D87234A1B874C385ACE1 /* PastPaperTrackerWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C876290A33753E48D76F144F /* PastPaperTrackerWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A36779392D2543B17462167 /* PastPaperTrackerWidgets.swift */; };
@@ -60,6 +64,7 @@
 		DA0056976246B9D8C1E6F96E /* StudySummaryWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9EA2977BC3D2A97CB8F457 /* StudySummaryWidget.swift */; };
 		E401CCE7CBA17E71C1F2E39E /* SubjectRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A70A877249169F741E702D3 /* SubjectRepository.swift */; };
 		E8122712F5CC932942E75384 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D9853C18F8133C32670D1A /* MainTabView.swift */; };
+		ED7E905269FD1353DE068EE2 /* Mulish-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 72B6541D54C6031947494E19 /* Mulish-Medium.ttf */; };
 		EEEECF1D5DD6D383BA1BA24E /* MarkEntryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD157311B844BE5A41DBA7F /* MarkEntryRepository.swift */; };
 /* End PBXBuildFile section */
 
@@ -114,6 +119,7 @@
 		23F58B417A7C9BEE755C0D83 /* PastPaperTrackerWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PastPaperTrackerWidgets.entitlements; sourceTree = "<group>"; };
 		24EB3F4A6F6B2C28F0562FFC /* PastPaperTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PastPaperTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		31BA934ED30723FD53A2679C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		33DB4B117C2D61547ACBF4B7 /* Mulish-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-SemiBold.ttf"; sourceTree = "<group>"; };
 		37B0DA375359CD45DA875F12 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		4085867F69FBC39E7205A7C9 /* MistakeEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeEditorView.swift; sourceTree = "<group>"; };
 		45AB424ED6A5666B4FE00018 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
@@ -129,6 +135,8 @@
 		67B1BAA569224536DA850B88 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		6A70A877249169F741E702D3 /* SubjectRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectRepository.swift; sourceTree = "<group>"; };
 		6D684B9DFDF2C6620337AEDB /* RepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryTests.swift; sourceTree = "<group>"; };
+		72B6541D54C6031947494E19 /* Mulish-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Medium.ttf"; sourceTree = "<group>"; };
+		7B540D7332300D5274B5DA97 /* Mulish-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Bold.ttf"; sourceTree = "<group>"; };
 		7E64929511EED0E7874F1386 /* PastPaperTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastPaperTrackerApp.swift; sourceTree = "<group>"; };
 		7E6ECBF0BD3682CEA83537AC /* AttachmentThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentThumbnailView.swift; sourceTree = "<group>"; };
 		854B3C04506C56059F2F6573 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -145,10 +153,12 @@
 		B61981083E1D28B67599ED18 /* PhotoStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStoreTests.swift; sourceTree = "<group>"; };
 		B6D9853C18F8133C32670D1A /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		BA8E1208FDF9C9CEF1C74268 /* ModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelFactory.swift; sourceTree = "<group>"; };
+		BB64D16F3823B906DA5F454F /* Mulish-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Regular.ttf"; sourceTree = "<group>"; };
 		BBD490E29E87E401081C8A97 /* AnalyticsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsCalculator.swift; sourceTree = "<group>"; };
 		C11717FF6B15350DFFD44C5C /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		C4F8A1F2362010207BF080E3 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		CB0B382D1E2455686C265DFE /* RevisionReminderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisionReminderStore.swift; sourceTree = "<group>"; };
+		D0E305F296F5B11BE35F2BB5 /* Mulish-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-ExtraBold.ttf"; sourceTree = "<group>"; };
 		D3487BCBB148162CF2918B71 /* ISO8601.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ISO8601.swift; sourceTree = "<group>"; };
 		D68D40CD47465DACBA60488C /* SubjectEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectEditorView.swift; sourceTree = "<group>"; };
 		D6F7E4BEE5B523E8FF7DF45A /* SyncMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMonitor.swift; sourceTree = "<group>"; };
@@ -276,6 +286,18 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
+		8912CBFE51B4D09660CC3D77 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				7B540D7332300D5274B5DA97 /* Mulish-Bold.ttf */,
+				D0E305F296F5B11BE35F2BB5 /* Mulish-ExtraBold.ttf */,
+				72B6541D54C6031947494E19 /* Mulish-Medium.ttf */,
+				BB64D16F3823B906DA5F454F /* Mulish-Regular.ttf */,
+				33DB4B117C2D61547ACBF4B7 /* Mulish-SemiBold.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		8D96BF80CEF948210E1E064E /* Features */ = {
 			isa = PBXGroup;
 			children = (
@@ -294,6 +316,7 @@
 				854B3C04506C56059F2F6573 /* Assets.xcassets */,
 				E5A9E9F29586E0DC039E24BA /* brand-logo.png */,
 				579815657DD54F8B4D283CC9 /* SupabaseConfig.plist */,
+				8912CBFE51B4D09660CC3D77 /* Fonts */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -531,6 +554,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1F86BACCD65C08948286055 /* Assets.xcassets in Resources */,
+				7F3E93BCC2DD89059A63AD59 /* Mulish-Bold.ttf in Resources */,
+				0FAA9D22A86B5DBD237C16A6 /* Mulish-ExtraBold.ttf in Resources */,
+				ED7E905269FD1353DE068EE2 /* Mulish-Medium.ttf in Resources */,
+				3C4B6EF917804BF209EAC953 /* Mulish-Regular.ttf in Resources */,
+				B88358A0293E4133278A0E58 /* Mulish-SemiBold.ttf in Resources */,
 				7D46105367326FF0C101011D /* SupabaseConfig.plist in Resources */,
 				AE9D0E6A3D9B68116C1661CA /* brand-logo.png in Resources */,
 			);
@@ -696,6 +724,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture a photo for a mistake entry.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Attach a photo to a mistake entry.";
 				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "Get revision reminders every few hours so you can come back and log another past paper.";
+				INFOPLIST_KEY_UIAppFonts = "Fonts/Mulish-Regular.ttf Fonts/Mulish-Medium.ttf Fonts/Mulish-SemiBold.ttf Fonts/Mulish-Bold.ttf Fonts/Mulish-ExtraBold.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -717,7 +746,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = 7L5P5726U2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -756,7 +784,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = PastPaperTracker/PastPaperTracker.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = 7L5P5726U2;
 				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\", \"CFBundleURLSchemes\": [\"pastpapertracker\"]]]";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -774,7 +802,6 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = PastPaperTrackerWidgets/PastPaperTrackerWidgets.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				DEVELOPMENT_TEAM = 7L5P5726U2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PastPaperTrackerWidgets/Info.plist;
@@ -845,6 +872,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture a photo for a mistake entry.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Attach a photo to a mistake entry.";
 				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "Get revision reminders every few hours so you can come back and log another past paper.";
+				INFOPLIST_KEY_UIAppFonts = "Fonts/Mulish-Regular.ttf Fonts/Mulish-Medium.ttf Fonts/Mulish-SemiBold.ttf Fonts/Mulish-Bold.ttf Fonts/Mulish-ExtraBold.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -866,7 +894,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = PastPaperTracker/PastPaperTracker.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = 7L5P5726U2;
 				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"com.shauryajain.PastPaperTracker\", \"CFBundleURLSchemes\": [\"pastpapertracker\"]]]";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -903,7 +931,6 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = PastPaperTrackerWidgets/PastPaperTrackerWidgets.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				DEVELOPMENT_TEAM = 7L5P5726U2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PastPaperTrackerWidgets/Info.plist;

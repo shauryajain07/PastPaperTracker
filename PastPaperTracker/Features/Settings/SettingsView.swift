@@ -3,6 +3,8 @@ import UIKit
 import UserNotifications
 
 struct SettingsView: View {
+    let showsDismissButton: Bool
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @EnvironmentObject private var environment: AppEnvironment
@@ -11,15 +13,23 @@ struct SettingsView: View {
     @EnvironmentObject private var syncMonitor: SyncMonitor
     @Environment(\.colorScheme) private var colorScheme
 
+    init(showsDismissButton: Bool = true) {
+        self.showsDismissButton = showsDismissButton
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     StudyPageHeader(
-                        eyebrow: "SETTINGS",
+                        eyebrow: "PROFILE & SETTINGS",
                         title: "Preferences & sync",
                         detail: "Manage account mode, revision reminders, and how this device connects to your study data."
                     )
+                    .studyRevealOnAppear()
+
+                    statusSummarySection
+                        .studyRevealOnAppear(index: 1)
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -42,6 +52,7 @@ struct SettingsView: View {
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 2)
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -70,6 +81,7 @@ struct SettingsView: View {
                             )
 
                             Button("Sync Now") {
+                                StudyFeedback.impact(.medium)
                                 Task {
                                     await environment.triggerSync()
                                 }
@@ -79,6 +91,7 @@ struct SettingsView: View {
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 3)
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -92,6 +105,7 @@ struct SettingsView: View {
                                 isOn: Binding(
                                     get: { revisionReminderStore.isEnabled },
                                     set: { enabled in
+                                        StudyFeedback.selection()
                                         Task {
                                             await revisionReminderStore.setEnabled(enabled)
                                         }
@@ -111,6 +125,7 @@ struct SettingsView: View {
                                     selection: Binding(
                                         get: { revisionReminderStore.interval },
                                         set: { interval in
+                                            StudyFeedback.selection()
                                             Task {
                                                 await revisionReminderStore.setInterval(interval)
                                             }
@@ -132,6 +147,7 @@ struct SettingsView: View {
                             if revisionReminderStore.authorizationStatus == .denied {
                                 Button("Open System Settings") {
                                     guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
+                                    StudyFeedback.impact(.light)
                                     openURL(settingsURL)
                                 }
                                 .buttonStyle(StudySecondaryButtonStyle())
@@ -143,6 +159,7 @@ struct SettingsView: View {
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 4)
 
                     if let error = syncMonitor.lastErrorMessage {
                         Text(error)
@@ -167,9 +184,11 @@ struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                                 .studyPanel(padding: 20)
                         }
+                        .studyRevealOnAppear(index: 5)
                     }
 
                     Button(role: .destructive) {
+                        StudyFeedback.impact(.rigid)
                         Task {
                             await environment.signOut()
                             dismiss()
@@ -182,22 +201,61 @@ struct SettingsView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
-                .padding(.bottom, 32)
+                .padding(.bottom, 24)
+                .animation(StudyMotion.spring, value: revisionReminderStore.isEnabled)
+                .animation(StudyMotion.spring, value: revisionReminderStore.interval)
             }
             .studyScreenBackground()
+            .studyTopFraming(18)
             .task {
                 await revisionReminderStore.refreshAuthorizationStatus()
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+                if showsDismissButton {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") {
+                            StudyFeedback.impact(.light)
+                            dismiss()
+                        }
                     }
                 }
             }
         }
+    }
+
+    private var statusSummarySection: some View {
+        StudyGlassGroup(spacing: 14) {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12)
+                ],
+                spacing: 12
+            ) {
+                StudyStatChip(
+                    title: "Mode",
+                    value: sessionStore.currentSession?.isGuest == true ? "Offline" : "Cloud",
+                    systemImage: "person.crop.circle"
+                )
+                StudyStatChip(
+                    title: "Sync",
+                    value: syncMonitor.isSyncing ? "Syncing" : "Ready",
+                    systemImage: "arrow.triangle.2.circlepath"
+                )
+                StudyStatChip(
+                    title: "Reminders",
+                    value: revisionReminderStore.isEnabled ? shortLabel(for: revisionReminderStore.interval) : "Off",
+                    systemImage: "bell.badge"
+                )
+                StudyStatChip(
+                    title: "Permission",
+                    value: notificationPermissionLabel,
+                    systemImage: "checkmark.shield"
+                )
+            }
+        }
+        .studyPanel(padding: 20)
     }
 
     private func shortLabel(for interval: RevisionReminderInterval) -> String {

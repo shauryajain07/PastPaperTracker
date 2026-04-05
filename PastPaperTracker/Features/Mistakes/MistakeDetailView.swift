@@ -10,10 +10,13 @@ struct MistakeDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 heroSection
+                    .studyRevealOnAppear()
                 notesSection
+                    .studyRevealOnAppear(index: 1)
 
                 if let photoPath = mistake.photoPath {
                     photoSection(photoPath: photoPath)
+                        .studyRevealOnAppear(index: 2)
                 }
             }
             .padding(.horizontal, 20)
@@ -26,6 +29,7 @@ struct MistakeDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Edit") {
+                    StudyFeedback.impact(.light)
                     showingEditSheet = true
                 }
             }

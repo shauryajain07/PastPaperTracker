@@ -19,10 +19,14 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Mistakes", systemImage: "exclamationmark.bubble")
                 }
+
+            SettingsView(showsDismissButton: false)
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
         }
         .tint(StudyTheme.accent)
         .toolbarBackground(.visible, for: .tabBar)
         .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-        .toolbarColorScheme(.light, for: .tabBar)
     }
 }

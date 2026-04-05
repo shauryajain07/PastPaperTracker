@@ -18,6 +18,7 @@ struct SubjectEditorView: View {
                         title: "Create a subject",
                         detail: "Add the subject once, then reuse it across tests and mistakes."
                     )
+                    .studyRevealOnAppear()
 
                     VStack(alignment: .leading, spacing: 14) {
                         StudySectionHeader(
@@ -31,6 +32,7 @@ struct SubjectEditorView: View {
                         }
                         .studyPanel(padding: 20)
                     }
+                    .studyRevealOnAppear(index: 1)
 
                     if let errorMessage {
                         Text(errorMessage)
@@ -53,16 +55,22 @@ struct SubjectEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
+                        StudyFeedback.impact(.light)
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
+                        StudyFeedback.impact(.medium)
                         save()
                     }
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
+            }
+            .onChange(of: errorMessage) { oldValue, newValue in
+                guard oldValue != newValue, newValue != nil else { return }
+                StudyFeedback.notification(.error)
             }
         }
     }
@@ -74,6 +82,7 @@ struct SubjectEditorView: View {
                 await environment.triggerSync()
             }
             onSaved(subject)
+            StudyFeedback.notification(.success)
             dismiss()
         } catch {
             errorMessage = error.localizedDescription

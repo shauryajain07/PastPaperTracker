@@ -34,4 +34,50 @@ final class AnalyticsCalculatorTests: XCTestCase {
         XCTAssertEqual(averages.first?.averagePercentage, 90)
         XCTAssertEqual(averages.last?.averagePercentage, 70)
     }
+
+    func testIBGradePointsIncludeOnlyResolvedEntriesAndSortChronologically() {
+        let subject = Subject(ownerId: "user-1", name: "Physics")
+        let manual = GradeBoundarySet(
+            ownerId: "user-1",
+            subject: subject,
+            title: "Default",
+            kind: .manualDefault,
+            thresholds: GradeBoundaryThresholds(grade1: 0, grade2: 12, grade3: 24, grade4: 35, grade5: 49, grade6: 63, grade7: 75)
+        )
+        subject.gradeBoundarySets = [manual]
+
+        let older = MarkEntry(
+            ownerId: "user-1",
+            subject: subject,
+            paperName: "Paper 1",
+            examDate: .distantPast,
+            scoredMarks: 76,
+            totalMarks: 100
+        )
+        let newer = MarkEntry(
+            ownerId: "user-1",
+            subject: subject,
+            paperName: "Paper 2",
+            examDate: .now,
+            scoredMarks: 64,
+            totalMarks: 100
+        )
+        let unresolved = MarkEntry(
+            ownerId: "user-1",
+            subject: Subject(ownerId: "user-1", name: "History"),
+            paperName: "Paper 3",
+            examDate: .now,
+            scoredMarks: 90,
+            totalMarks: 100
+        )
+
+        let result = AnalyticsCalculator.ibGradePoints(from: [newer, unresolved, older])
+
+        XCTAssertEqual(result.count, 2)
+        XCTAssertLessThan(result[0].date, result[1].date)
+        XCTAssertEqual(result[0].grade, 7)
+        XCTAssertEqual(result[1].grade, 6)
+        XCTAssertEqual(result[1].paperName, "Paper 2")
+        XCTAssertEqual(result[0].subjectName, "Physics")
+    }
 }

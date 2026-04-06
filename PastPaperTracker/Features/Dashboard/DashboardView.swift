@@ -50,9 +50,22 @@ struct DashboardView: View {
         AnalyticsCalculator.subjectAverages(from: markEntries)
     }
 
+    private var ibGradePoints: [IBGradePoint] {
+        AnalyticsCalculator.ibGradePoints(from: markEntries)
+    }
+
     private var overallAverage: Double {
         guard !markEntries.isEmpty else { return 0 }
         return markEntries.map(\.percentage).reduce(0, +) / Double(markEntries.count)
+    }
+
+    private var overallIBAverage: Double? {
+        guard !ibGradePoints.isEmpty else { return nil }
+        return ibGradePoints.map { Double($0.grade) }.reduce(0, +) / Double(ibGradePoints.count)
+    }
+
+    private var overallIBHighGradeCount: Int {
+        ibGradePoints.filter { $0.grade >= 6 }.count
     }
 
     private var bestSubjectSummary: String {
@@ -109,6 +122,11 @@ struct DashboardView: View {
         return markEntries.filter { $0.subject?.id.uuidString.lowercased() == effectiveSubjectFilter }
     }
 
+    private var focusIBGradePoints: [IBGradePoint] {
+        guard effectiveSubjectFilter != "all" else { return ibGradePoints }
+        return ibGradePoints.filter { $0.subjectFilterKey == effectiveSubjectFilter }
+    }
+
     private var focusMistakes: [MistakeEntry] {
         guard effectiveSubjectFilter != "all" else { return mistakes }
         return mistakes.filter { $0.subject?.id.uuidString.lowercased() == effectiveSubjectFilter }
@@ -129,6 +147,15 @@ struct DashboardView: View {
 
     private var focusLatestEntry: MarkEntry? {
         focusMarkEntries.first
+    }
+
+    private var focusIBAverage: Double? {
+        guard !focusIBGradePoints.isEmpty else { return nil }
+        return focusIBGradePoints.map { Double($0.grade) }.reduce(0, +) / Double(focusIBGradePoints.count)
+    }
+
+    private var focusLatestIBGradePoint: IBGradePoint? {
+        focusIBGradePoints.max { $0.date < $1.date }
     }
 
     private var focusImprovementFromPrevious: Double? {
@@ -160,6 +187,22 @@ struct DashboardView: View {
         return "\(focusMistakes.count) review item\(focusMistakes.count == 1 ? "" : "s") connected to \(selectedSubject?.name ?? "your dashboard")."
     }
 
+    private var ibAverageWidgetDetail: String {
+        guard !focusIBGradePoints.isEmpty else {
+            return "Save IB boundaries for this view to convert raw marks into grades."
+        }
+
+        return "\(focusIBGradePoints.count) paper\(focusIBGradePoints.count == 1 ? "" : "s") in this view now resolve to IB grades."
+    }
+
+    private var latestIBWidgetDetail: String {
+        guard let focusLatestIBGradePoint else {
+            return "Your latest IB grade will appear here once boundaries are saved."
+        }
+
+        return "\(focusLatestIBGradePoint.paperName) on \(Formatters.shortDate.string(from: focusLatestIBGradePoint.date))."
+    }
+
     private var focusWidgets: [DashboardWidgetMetric] {
         [
             DashboardWidgetMetric(
@@ -185,6 +228,20 @@ struct DashboardView: View {
                 detail: latestWidgetDetail,
                 systemImage: "clock.arrow.circlepath",
                 tint: StudyTheme.accentDeep
+            ),
+            DashboardWidgetMetric(
+                title: "Avg IB Grade",
+                value: focusIBAverage.map { "\($0.formatted(.number.precision(.fractionLength(1))))/7" } ?? "--",
+                detail: ibAverageWidgetDetail,
+                systemImage: "graduationcap",
+                tint: StudyTheme.sky
+            ),
+            DashboardWidgetMetric(
+                title: "Latest IB",
+                value: focusLatestIBGradePoint.map { "IB \($0.grade)" } ?? "--",
+                detail: latestIBWidgetDetail,
+                systemImage: "medal.star",
+                tint: StudyTheme.warm
             ),
             DashboardWidgetMetric(
                 title: "Mistake Load",
@@ -413,9 +470,19 @@ struct DashboardView: View {
                     systemImage: "gauge.with.dots.needle.50percent"
                 )
                 StudyStatChip(
+                    title: "IB Avg",
+                    value: overallIBAverage.map { "\($0.formatted(.number.precision(.fractionLength(1))))/7" } ?? "--",
+                    systemImage: "graduationcap.fill"
+                )
+                StudyStatChip(
                     title: "Best Subject",
                     value: bestSubjectSummary,
                     systemImage: "sparkles"
+                )
+                StudyStatChip(
+                    title: "IB 6-7",
+                    value: ibGradePoints.isEmpty ? "--" : "\(overallIBHighGradeCount)/\(ibGradePoints.count)",
+                    systemImage: "medal"
                 )
                 StudyStatChip(
                     title: "Tests Logged",

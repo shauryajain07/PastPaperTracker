@@ -404,6 +404,7 @@ struct GradeBoundarySettingsView: View {
             await environment.triggerSync()
             await loadSharedCatalog()
         } catch {
+            guard !isCancellation(error) else { return }
             errorMessage = error.localizedDescription
             StudyFeedback.notification(.error)
         }
@@ -423,9 +424,19 @@ struct GradeBoundarySettingsView: View {
         do {
             sharedCatalogSets = try await environment.sharedGradeBoundaryCatalogService.fetchSharedSets(for: subject)
         } catch {
+            guard !isCancellation(error) else { return }
             sharedCatalogSets = []
             sharedCatalogError = error.localizedDescription
         }
+    }
+
+    private func isCancellation(_ error: Error) -> Bool {
+        if error is CancellationError {
+            return true
+        }
+
+        let nsError = error as NSError
+        return nsError.domain == "Swift.CancellationError" && nsError.code == 1
     }
 
     private func addSharedSetToSubject(_ sharedSet: SharedGradeBoundaryCatalogEntry) {

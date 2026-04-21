@@ -6,7 +6,7 @@ struct MistakesListView: View {
 
     @Query private var subjects: [Subject]
     @Query private var mistakes: [MistakeEntry]
-    @State private var selectedSubjectFilter = "all"
+    @AppStorage("mistakes.selectedSubjectFilter") private var selectedSubjectFilter = "all"
     @State private var showingNewMistake = false
 
     init(ownerId: String) {

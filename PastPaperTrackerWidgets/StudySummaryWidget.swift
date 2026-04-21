@@ -2,6 +2,34 @@ import Charts
 import SwiftUI
 import WidgetKit
 
+private enum WidgetRefreshPolicy {
+    static var nextRefresh: Date {
+        Calendar.current.date(byAdding: .hour, value: 2, to: .now) ?? .now.addingTimeInterval(7200)
+    }
+}
+
+struct StudySummaryEntry: TimelineEntry {
+    let date: Date
+    let snapshot: WidgetDashboardSnapshot
+}
+
+struct StudySummaryProvider: TimelineProvider {
+    func placeholder(in context: Context) -> StudySummaryEntry {
+        StudySummaryEntry(date: .now, snapshot: .sample)
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (StudySummaryEntry) -> Void) {
+        let snapshot = WidgetSnapshotStore.load() ?? (context.isPreview ? .sample : .empty)
+        completion(StudySummaryEntry(date: .now, snapshot: snapshot))
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<StudySummaryEntry>) -> Void) {
+        let snapshot = WidgetSnapshotStore.load() ?? .empty
+        let entry = StudySummaryEntry(date: .now, snapshot: snapshot)
+        completion(Timeline(entries: [entry], policy: .after(WidgetRefreshPolicy.nextRefresh)))
+    }
+}
+
 struct SubjectTrendEntry: TimelineEntry {
     let date: Date
     let configuration: SubjectGraphConfigurationIntent
@@ -24,8 +52,7 @@ struct SubjectTrendProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: SubjectGraphConfigurationIntent, in context: Context) async -> Timeline<SubjectTrendEntry> {
         let entry = makeEntry(for: configuration, using: WidgetSnapshotStore.load() ?? .empty)
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: .now) ?? .now.addingTimeInterval(1800)
-        return Timeline(entries: [entry], policy: .after(nextUpdate))
+        return Timeline(entries: [entry], policy: .after(WidgetRefreshPolicy.nextRefresh))
     }
 
     private func makeEntry(
@@ -49,7 +76,24 @@ struct SubjectTrendProvider: AppIntentTimelineProvider {
             return snapshot.subjectSummaries.first { $0.id == selection.id }
         }
 
+        if let latestSubjectID = snapshot.latestSubjectID {
+            return snapshot.subjectSummaries.first { $0.id == latestSubjectID }
+        }
+
         return snapshot.subjectSummaries.first
+    }
+}
+
+struct StudySummaryWidget: Widget {
+    private let kind = "StudySummaryWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: StudySummaryProvider()) { entry in
+            StudySummaryWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Revision Summary")
+        .description("See your average, latest result, and biggest focus area right from the Home Screen.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
@@ -67,6 +111,123 @@ struct SubjectTrendWidget: Widget {
         .configurationDisplayName("Subject Graph")
         .description("Pick a subject and track its score trend from the Home Screen.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+    }
+}
+
+private struct StudySummaryWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: StudySummaryEntry
+
+    var body: some View {
+        switch family {
+        case .systemSmall:
+            StudySummarySmallView(entry: entry)
+        default:
+            StudySummaryMediumView(entry: entry)
+        }
+    }
+}
+
+private struct StudySummarySmallView: View {
+    let entry: StudySummaryEntry
+
+    var body: some View {
+        WidgetSurface {
+            if entry.snapshot.testsLogged > 0 {
+                VStack(alignment: .leading, spacing: 14) {
+                    WidgetHeader(
+                        eyebrow: "Revision Snapshot",
+                        title: "Overall",
+                        subtitle: latestSummary(snapshot: entry.snapshot)
+                    )
+
+                    HStack(alignment: .lastTextBaseline, spacing: 8) {
+                        Text(percentageText(entry.snapshot.overallAverage))
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .foregroundStyle(WidgetStudyTheme.ink)
+                            .contentTransition(.numericText())
+
+                        Text("avg")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(WidgetStudyTheme.mutedText)
+                    }
+
+                    SummaryHighlightCard(
+                        title: "Focus",
+                        value: entry.snapshot.focusSubjectName ?? "Stay consistent",
+                        detail: focusSummary(snapshot: entry.snapshot),
+                        tint: WidgetStudyTheme.rose
+                    )
+
+                    WidgetStatsBar(
+                        items: [
+                            WidgetStatItem(title: "Tests", value: "\(entry.snapshot.testsLogged)"),
+                            WidgetStatItem(title: "Mistakes", value: "\(entry.snapshot.mistakesLogged)")
+                        ]
+                    )
+                }
+            } else {
+                WidgetEmptyState(
+                    title: "Revision Summary",
+                    message: "Open the app and log your first paper to bring this widget to life."
+                )
+            }
+        }
+    }
+}
+
+private struct StudySummaryMediumView: View {
+    let entry: StudySummaryEntry
+
+    var body: some View {
+        WidgetSurface {
+            if entry.snapshot.testsLogged > 0 {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .top, spacing: 12) {
+                        WidgetHeader(
+                            eyebrow: "Revision Snapshot",
+                            title: percentageText(entry.snapshot.overallAverage),
+                            subtitle: latestSummary(snapshot: entry.snapshot)
+                        )
+
+                        Spacer(minLength: 8)
+
+                        ScoreBadge(value: entry.snapshot.latestPaperPercentage, label: "Latest")
+                    }
+
+                    HStack(spacing: 12) {
+                        SummaryHighlightCard(
+                            title: "Best Subject",
+                            value: entry.snapshot.bestSubjectName ?? "No subject yet",
+                            detail: entry.snapshot.bestSubjectAverage.map {
+                                "\(percentageText($0)) average"
+                            } ?? "Keep logging results to surface a leader.",
+                            tint: WidgetStudyTheme.accent
+                        )
+
+                        SummaryHighlightCard(
+                            title: "Focus Area",
+                            value: entry.snapshot.focusSubjectName ?? "No weak spot yet",
+                            detail: focusSummary(snapshot: entry.snapshot),
+                            tint: WidgetStudyTheme.rose
+                        )
+                    }
+
+                    WidgetStatsBar(
+                        items: [
+                            WidgetStatItem(title: "Tests", value: "\(entry.snapshot.testsLogged)"),
+                            WidgetStatItem(title: "Mistakes", value: "\(entry.snapshot.mistakesLogged)"),
+                            WidgetStatItem(title: "Marks Lost", value: marksLostText(entry.snapshot.totalMarksLost))
+                        ]
+                    )
+                }
+            } else {
+                WidgetEmptyState(
+                    title: "Revision Summary",
+                    message: "Open the app and log your first paper to bring this widget to life."
+                )
+            }
+        }
     }
 }
 
@@ -97,9 +258,11 @@ private struct SubjectTrendSmallView: View {
                         WidgetHeader(
                             eyebrow: "Pinned Subject",
                             title: subject.name,
-                            subtitle: "\(subject.testCount) test\(subject.testCount == 1 ? "" : "s")"
+                            subtitle: subject.latestPaperName ?? latestSubjectSubtitle(subject)
                         )
+
                         Spacer(minLength: 8)
+
                         ScoreBadge(value: subject.latestPercentage, label: "Latest")
                     }
 
@@ -111,7 +274,7 @@ private struct SubjectTrendSmallView: View {
                     WidgetStatsBar(
                         items: [
                             WidgetStatItem(title: "Average", value: percentageText(subject.averagePercentage)),
-                            WidgetStatItem(title: "Tests", value: "\(subject.testCount)")
+                            WidgetStatItem(title: "Mistakes", value: "\(subject.mistakeCount)")
                         ]
                     )
                 }
@@ -136,9 +299,11 @@ private struct SubjectTrendMediumView: View {
                         WidgetHeader(
                             eyebrow: "Subject Graph",
                             title: subject.name,
-                            subtitle: subject.latestPaperName ?? "Latest paper"
+                            subtitle: subject.latestPaperName ?? latestSubjectSubtitle(subject)
                         )
+
                         Spacer(minLength: 12)
+
                         ScoreBadge(value: subject.latestPercentage, label: "Latest")
                     }
 
@@ -151,7 +316,7 @@ private struct SubjectTrendMediumView: View {
                         items: [
                             WidgetStatItem(title: "Average", value: percentageText(subject.averagePercentage)),
                             WidgetStatItem(title: "Tests", value: "\(subject.testCount)"),
-                            WidgetStatItem(title: "Latest", value: percentageText(subject.latestPercentage))
+                            WidgetStatItem(title: "Marks Lost", value: marksLostText(subject.marksLost))
                         ]
                     )
                 }
@@ -176,9 +341,11 @@ private struct SubjectTrendLargeView: View {
                         WidgetHeader(
                             eyebrow: "Subject Graph",
                             title: subject.name,
-                            subtitle: subject.latestPaperName ?? "Latest paper"
+                            subtitle: subject.latestPaperName ?? latestSubjectSubtitle(subject)
                         )
+
                         Spacer(minLength: 12)
+
                         ScoreBadge(value: subject.latestPercentage, label: "Latest")
                     }
 
@@ -191,16 +358,15 @@ private struct SubjectTrendLargeView: View {
                         items: [
                             WidgetStatItem(title: "Average", value: percentageText(subject.averagePercentage)),
                             WidgetStatItem(title: "Tests", value: "\(subject.testCount)"),
-                            WidgetStatItem(title: "Latest", value: percentageText(subject.latestPercentage))
+                            WidgetStatItem(title: "Mistakes", value: "\(subject.mistakeCount)"),
+                            WidgetStatItem(title: "Marks Lost", value: marksLostText(subject.marksLost))
                         ]
                     )
 
-                    if let latestPaperName = subject.latestPaperName {
-                        Text(latestPaperName)
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(WidgetPalette.secondaryText)
-                            .lineLimit(1)
-                    }
+                    Text(subjectFootnote(subject))
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(WidgetStudyTheme.mutedText)
+                        .lineLimit(2)
                 }
             } else {
                 WidgetEmptyState(
@@ -219,7 +385,7 @@ private struct SubjectTrendChart: View {
         Chart {
             RuleMark(y: .value("Benchmark", 50))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                .foregroundStyle(.white.opacity(0.16))
+                .foregroundStyle(WidgetStudyTheme.tertiaryText.opacity(0.35))
 
             if points.count > 1 {
                 ForEach(points) { point in
@@ -231,8 +397,8 @@ private struct SubjectTrendChart: View {
                     .foregroundStyle(
                         LinearGradient(
                             colors: [
-                                WidgetPalette.mint.opacity(0.30),
-                                WidgetPalette.mint.opacity(0.02)
+                                WidgetStudyTheme.accent.opacity(0.26),
+                                WidgetStudyTheme.sky.opacity(0.06)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -251,8 +417,8 @@ private struct SubjectTrendChart: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            WidgetPalette.mint,
-                            WidgetPalette.amber
+                            WidgetStudyTheme.accent,
+                            WidgetStudyTheme.sky
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -265,16 +431,15 @@ private struct SubjectTrendChart: View {
                     x: .value("Date", latestPoint.date),
                     y: .value("Percentage", latestPoint.percentage)
                 )
-                .symbolSize(72)
-                .foregroundStyle(Color.white)
+                .symbolSize(70)
+                .foregroundStyle(WidgetStudyTheme.scoreColor(for: latestPoint.percentage))
             }
         }
         .chartYScale(domain: 0...100)
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
         .chartPlotStyle { plotArea in
-            plotArea
-                .background(.clear)
+            plotArea.background(.clear)
         }
     }
 }
@@ -288,37 +453,35 @@ private struct WidgetSurface<Content: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .overlay {
                 ContainerRelativeShape()
-                    .stroke(.white.opacity(0.10), lineWidth: 1)
+                    .stroke(WidgetStudyTheme.border.opacity(0.65), lineWidth: 1)
             }
             .containerBackground(for: .widget) {
                 ZStack {
-                    LinearGradient(
-                        colors: [
-                            WidgetPalette.navy,
-                            WidgetPalette.deepTeal,
-                            WidgetPalette.moss
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    WidgetStudyTheme.backgroundGradient
 
                     Circle()
-                        .fill(WidgetPalette.amber.opacity(0.26))
+                        .fill(WidgetStudyTheme.accent.opacity(0.14))
                         .frame(width: 180, height: 180)
-                        .blur(radius: 48)
-                        .offset(x: 74, y: -72)
+                        .blur(radius: 56)
+                        .offset(x: 92, y: -88)
 
                     Circle()
-                        .fill(WidgetPalette.mint.opacity(0.18))
+                        .fill(WidgetStudyTheme.sky.opacity(0.12))
                         .frame(width: 220, height: 220)
-                        .blur(radius: 58)
-                        .offset(x: -92, y: 110)
+                        .blur(radius: 64)
+                        .offset(x: -100, y: 120)
+
+                    Ellipse()
+                        .fill(WidgetStudyTheme.warm.opacity(0.10))
+                        .frame(width: 220, height: 140)
+                        .blur(radius: 54)
+                        .offset(x: -20, y: -10)
 
                     LinearGradient(
                         colors: [
-                            .white.opacity(0.10),
+                            .white.opacity(0.24),
                             .clear,
-                            .black.opacity(0.18)
+                            WidgetStudyTheme.accentDeep.opacity(0.06)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -338,19 +501,19 @@ private struct WidgetHeader: View {
             Text(eyebrow.uppercased())
                 .font(.caption2.weight(.semibold))
                 .tracking(1.2)
-                .foregroundStyle(WidgetPalette.secondaryText)
+                .foregroundStyle(WidgetStudyTheme.tertiaryText)
                 .lineLimit(1)
 
             Text(title)
                 .font(.system(size: 19, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundStyle(WidgetStudyTheme.ink)
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
 
             Text(subtitle)
                 .font(.caption.weight(.medium))
-                .foregroundStyle(WidgetPalette.secondaryText)
-                .lineLimit(1)
+                .foregroundStyle(WidgetStudyTheme.mutedText)
+                .lineLimit(2)
         }
     }
 }
@@ -360,24 +523,63 @@ private struct ScoreBadge: View {
     let label: String
 
     var body: some View {
+        let tint = WidgetStudyTheme.scoreColor(for: value ?? 0)
+
         VStack(alignment: .leading, spacing: 4) {
             Text(label.uppercased())
                 .font(.caption2.weight(.semibold))
                 .tracking(1.1)
-                .foregroundStyle(WidgetPalette.secondaryText)
+                .foregroundStyle(WidgetStudyTheme.mutedText)
 
             Text(percentageText(value))
                 .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundStyle(WidgetStudyTheme.ink)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.white.opacity(0.10))
+                .fill(tint.opacity(0.18))
                 .overlay {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(.white.opacity(0.10), lineWidth: 1)
+                        .stroke(tint.opacity(0.22), lineWidth: 1)
+                }
+        }
+    }
+}
+
+private struct SummaryHighlightCard: View {
+    let title: String
+    let value: String
+    let detail: String
+    let tint: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title.uppercased())
+                .font(.caption2.weight(.semibold))
+                .tracking(1.1)
+                .foregroundStyle(WidgetStudyTheme.tertiaryText)
+
+            Text(value)
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundStyle(WidgetStudyTheme.ink)
+                .lineLimit(1)
+
+            Text(detail)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(WidgetStudyTheme.mutedText)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(tint.opacity(0.12))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(tint.opacity(0.18), lineWidth: 1)
                 }
         }
     }
@@ -399,11 +601,11 @@ private struct WidgetStatsBar: View {
                     Text(item.title.uppercased())
                         .font(.caption2.weight(.semibold))
                         .tracking(1.0)
-                        .foregroundStyle(WidgetPalette.secondaryText)
+                        .foregroundStyle(WidgetStudyTheme.tertiaryText)
 
                     Text(item.value)
                         .font(.headline.weight(.bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(WidgetStudyTheme.ink)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
@@ -411,7 +613,7 @@ private struct WidgetStatsBar: View {
 
                 if index < items.count - 1 {
                     Rectangle()
-                        .fill(.white.opacity(0.10))
+                        .fill(WidgetStudyTheme.border.opacity(0.75))
                         .frame(width: 1)
                         .padding(.vertical, 2)
                 }
@@ -421,10 +623,10 @@ private struct WidgetStatsBar: View {
         .padding(.vertical, 10)
         .background {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.white.opacity(0.08))
+                .fill(.white.opacity(0.56))
                 .overlay {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(.white.opacity(0.08), lineWidth: 1)
+                        .stroke(WidgetStudyTheme.border.opacity(0.7), lineWidth: 1)
                 }
         }
     }
@@ -436,13 +638,13 @@ private struct WidgetEmptyState: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            WidgetHeader(eyebrow: "Subject Graph", title: title, subtitle: "Graph unavailable")
+            WidgetHeader(eyebrow: "Past Paper Tracker", title: title, subtitle: "Widget waiting for data")
 
             Spacer(minLength: 0)
 
             Text(message)
                 .font(.footnote)
-                .foregroundStyle(WidgetPalette.secondaryText)
+                .foregroundStyle(WidgetStudyTheme.mutedText)
 
             Spacer(minLength: 0)
         }
@@ -458,22 +660,54 @@ private struct WidgetChartFrame<Content: View>: View {
             .padding(.vertical, 8)
             .background {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(.white.opacity(0.07))
+                    .fill(.white.opacity(0.54))
                     .overlay {
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(.white.opacity(0.08), lineWidth: 1)
+                            .stroke(WidgetStudyTheme.border.opacity(0.7), lineWidth: 1)
                     }
             }
     }
 }
 
-private enum WidgetPalette {
-    static let navy = Color(red: 0.07, green: 0.10, blue: 0.19)
-    static let deepTeal = Color(red: 0.08, green: 0.24, blue: 0.28)
-    static let moss = Color(red: 0.21, green: 0.50, blue: 0.44)
-    static let mint = Color(red: 0.66, green: 0.97, blue: 0.88)
-    static let amber = Color(red: 0.97, green: 0.80, blue: 0.51)
-    static let secondaryText = Color.white.opacity(0.74)
+private func latestSummary(snapshot: WidgetDashboardSnapshot) -> String {
+    guard let latestPaperName = snapshot.latestPaperName else {
+        return "Keep logging results to build your study picture."
+    }
+
+    if let latestSubjectName = snapshot.latestSubjectName {
+        return "\(latestPaperName) in \(latestSubjectName)"
+    }
+
+    return latestPaperName
+}
+
+private func focusSummary(snapshot: WidgetDashboardSnapshot) -> String {
+    guard let focusSubjectName = snapshot.focusSubjectName else {
+        return "No obvious weak spot yet."
+    }
+
+    let marksLost = snapshot.focusSubjectMarksLost ?? 0
+    if marksLost > 0 {
+        return "\(marksLostText(marksLost)) drifting away in \(focusSubjectName)."
+    }
+
+    return "Most mistakes are currently in \(focusSubjectName)."
+}
+
+private func latestSubjectSubtitle(_ subject: WidgetSubjectSnapshot) -> String {
+    guard let latestExamDate = subject.latestExamDate else {
+        return "\(subject.testCount) test\(subject.testCount == 1 ? "" : "s")"
+    }
+
+    return WidgetDateFormatter.short.string(from: latestExamDate)
+}
+
+private func subjectFootnote(_ subject: WidgetSubjectSnapshot) -> String {
+    if subject.marksLost > 0 {
+        return "\(marksLostText(subject.marksLost)) tied to logged mistakes in \(subject.name)."
+    }
+
+    return "\(subject.mistakeCount) revision item\(subject.mistakeCount == 1 ? "" : "s") linked to this subject."
 }
 
 private func emptyStateMessage(snapshot: WidgetDashboardSnapshot, selectedSubjectName: String?) -> String {
@@ -491,4 +725,18 @@ private func emptyStateMessage(snapshot: WidgetDashboardSnapshot, selectedSubjec
 private func percentageText(_ value: Double?) -> String {
     guard let value else { return "--" }
     return "\(value.formatted(.number.precision(.fractionLength(0))))%"
+}
+
+private func marksLostText(_ value: Double) -> String {
+    guard value > 0 else { return "--" }
+    return "\(value.formatted(.number.precision(.fractionLength(0))))"
+}
+
+private enum WidgetDateFormatter {
+    static let short: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
 }

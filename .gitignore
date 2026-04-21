@@ -9,3 +9,6 @@ Package.resolved
 PastPaperTracker.xcodeproj/project.xcworkspace/xcuserdata/
 PastPaperTracker.xcodeproj/xcuserdata/
 PastPaperTracker/Resources/SupabaseConfig.plist
+web/.next/
+web/node_modules/
+web/.env*.local

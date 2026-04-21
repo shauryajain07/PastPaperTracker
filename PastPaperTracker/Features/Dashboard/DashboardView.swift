@@ -8,7 +8,7 @@ struct DashboardView: View {
     @Query private var subjects: [Subject]
     @Query private var markEntries: [MarkEntry]
     @Query private var mistakes: [MistakeEntry]
-    @State private var selectedSubjectFilter = "all"
+    @AppStorage("dashboard.selectedSubjectFilter") private var selectedSubjectFilter = "all"
     @State private var showingNewTestSheet = false
     @State private var showingNewMistakeSheet = false
 

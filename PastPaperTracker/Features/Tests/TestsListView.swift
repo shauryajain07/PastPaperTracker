@@ -7,7 +7,7 @@ struct TestsListView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Query private var subjects: [Subject]
     @Query private var markEntries: [MarkEntry]
-    @State private var selectedSubjectFilter = "all"
+    @AppStorage("tests.selectedSubjectFilter") private var selectedSubjectFilter = "all"
     @State private var showingNewTest = false
 
     init(ownerId: String) {
